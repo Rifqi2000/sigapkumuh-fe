@@ -1,0 +1,132 @@
+:root {
+  --sigap-blue: #1BA9E5;
+}
+
+.App {
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--sigap-blue);
+  min-height: 100vh;
+  padding-bottom: 2rem;
+  color: white;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #1BA9E5; /* Warna SIGAP */
+}
+
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+  animation: App-logo-spin infinite 20s linear;
+}
+
+/* .App-header {
+  background-color: transparent;
+  padding: 2rem;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+} */
+
+.App-header {
+  background-color: var(--sigap-blue);
+  min-height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.App-link {
+  color: var(--sigap-blue);
+  text-decoration: none;
+}
+
+.App-link:hover {
+  text-decoration: underline;
+}
+
+.btn-primary {
+  background-color: var(--sigap-blue);
+  border-color: var(--sigap-blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1694c9;
+  border-color: #1694c9;
+}
+
+.content-container {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #212529;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+}
+
+.text-sigap {
+  color: var(--sigap-blue) !important;
+}
+
+.bg-sigap {
+  background-color: var(--sigap-blue) !important;
+  color: white;
+}
+
+.scroll-down-btn {
+  margin-top: 2rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+}
+
+.dashboard-header {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.card-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
