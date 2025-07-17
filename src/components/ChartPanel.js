@@ -41,7 +41,7 @@ const ChartPanel = ({ data, filters }) => {
       const numB = parseInt(String(b).match(/\d+/)?.[0] || 0, 10);
       return numA - numB;
     });
-  } else if (xField === 'lokasi_kabkota') {
+  } else if (xField === 'wilayah') {
     const wilayahOrder = [
       'Kota Adm. Jakarta Pusat',
       'Kota Adm. Jakarta Barat',
