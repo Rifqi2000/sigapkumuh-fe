@@ -13,10 +13,10 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const ChartPanel = ({ data, filters }) => {
   // Tentukan level grup sumbu X berdasarkan filter
-  let xField = 'nama_kabkota';
-  if (filters.wilayah && !filters.kecamatan) xField = 'nama_kec';
-  else if (filters.kecamatan && !filters.kelurahan) xField = 'nama_kel';
-  else if (filters.kelurahan) xField = 'nama_rw';
+  let xField = 'wilayah';
+  if (filters.wilayah && !filters.kecamatan) xField = 'kecamatan';
+  else if (filters.kecamatan && !filters.kelurahan) xField = 'kelurahan';
+  else if (filters.kelurahan) xField = 'lokasi_rw';
 
   // Ambil semua label unik untuk sumbu X
   let labels = [...new Set(data.map((d) => d[xField]))];
@@ -35,13 +35,13 @@ const ChartPanel = ({ data, filters }) => {
   };
 
   // Urutkan RW jika field RW dan wilayah termasuk Jakarta
-  if (xField === 'nama_rw' && filters.wilayah && isDKI(filters.wilayah)) {
+  if (xField === 'lokasi_rw' && filters.wilayah && isDKI(filters.wilayah)) {
     labels.sort((a, b) => {
       const numA = parseInt(String(a).match(/\d+/)?.[0] || 0, 10);
       const numB = parseInt(String(b).match(/\d+/)?.[0] || 0, 10);
       return numA - numB;
     });
-  } else if (xField === 'nama_kabkota') {
+  } else if (xField === 'lokasi_kabkota') {
     const wilayahOrder = [
       'Kota Adm. Jakarta Pusat',
       'Kota Adm. Jakarta Barat',

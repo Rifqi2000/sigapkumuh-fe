@@ -1,13 +1,13 @@
 import React from 'react';
 
 const FilterPanel = ({ filters, setFilters, allData }) => {
-  const fields = ['tahun', 'nama_kabkota', 'nama_kec', 'nama_kel'];
+  const fields = ['periode_tahun', 'wilayah', 'kecamatan', 'kelurahan'];
 
   const dependencies = {
     periode_data: [],
-    wilayah: ['tahun'],
-    kecamatan: ['tahun', 'nama_kabkota'],
-    kelurahan: ['tahun', 'nama_kabkota', 'nama_kec'],
+    wilayah: ['periode_tahun'],
+    kecamatan: ['periode_tahun', 'wilayah'],
+    kelurahan: ['periode_tahun', 'wilayah', 'kecamatan'],
   };
 
   // Format ke Title Case (Awal Huruf Kapital)
