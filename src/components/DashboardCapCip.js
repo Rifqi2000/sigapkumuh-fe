@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -24,12 +24,20 @@ ChartJS.register(
 );
 
 const DashboardCAPCIP = ({ data }) => {
+  // Gunakan useState untuk menyimpan filter aktif
+  const [selectedTahun, setSelectedTahun] = useState('2024');
+  const [selectedWilayah, setSelectedWilayah] = useState('Semua');
+  const [selectedKecamatan, setSelectedKecamatan] = useState('Semua');
+  const [selectedKelurahan, setSelectedKelurahan] = useState('Semua');
+  const [selectedRW, setSelectedRW] = useState('Semua');
+
+  // Buat object filters dinamis
   const filters = {
-    tahun: '2024',
-    wilayah: 'Semua',
-    kecamatan: 'Semua',
-    kelurahan: 'Semua',
-    rw: 'Semua',
+    tahun: selectedTahun,
+    wilayah: selectedWilayah,
+    kecamatan: selectedKecamatan,
+    kelurahan: selectedKelurahan,
+    rw: selectedRW,
   };
 
   const detailCIPRef = useRef(null);
@@ -50,14 +58,47 @@ const DashboardCAPCIP = ({ data }) => {
     <div id="main-content" className="container py-3">
       {/* Filter */}
       <div className="row mb-3 text-center">
-        {['Tahun Data', 'Wilayah', 'Kecamatan', 'Kelurahan', 'RW'].map((label) => (
-          <div key={label} className="col">
-            <label className="fw-bold">{label}</label>
-            <select className="form-select">
-              <option>Semua</option>
-            </select>
-          </div>
-        ))}
+        <div className="col">
+          <label className="fw-bold">Tahun Data</label>
+          <select className="form-select" value={selectedTahun} onChange={(e) => setSelectedTahun(e.target.value)}>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="Semua">Semua</option>
+          </select>
+        </div>
+        <div className="col">
+          <label className="fw-bold">Wilayah</label>
+          <select className="form-select" value={selectedWilayah} onChange={(e) => setSelectedWilayah(e.target.value)}>
+            <option value="Semua">Semua</option>
+            <option value="Pusat">Pusat</option>
+            <option value="Barat">Barat</option>
+            <option value="Selatan">Selatan</option>
+            <option value="Utara">Utara</option>
+            <option value="Timur">Timur</option>
+          </select>
+        </div>
+        <div className="col">
+          <label className="fw-bold">Kecamatan</label>
+          <select className="form-select" value={selectedKecamatan} onChange={(e) => setSelectedKecamatan(e.target.value)}>
+            <option value="Semua">Semua</option>
+            {/* Tambahkan opsi kecamatan sesuai data */}
+          </select>
+        </div>
+        <div className="col">
+          <label className="fw-bold">Kelurahan</label>
+          <select className="form-select" value={selectedKelurahan} onChange={(e) => setSelectedKelurahan(e.target.value)}>
+            <option value="Semua">Semua</option>
+            {/* Tambahkan opsi kelurahan */}
+          </select>
+        </div>
+        <div className="col">
+          <label className="fw-bold">RW</label>
+          <select className="form-select" value={selectedRW} onChange={(e) => setSelectedRW(e.target.value)}>
+            <option value="Semua">Semua</option>
+            {/* Tambahkan opsi RW */}
+          </select>
+        </div>
       </div>
 
       {/* Grafik Bar dan Donat CAP */}

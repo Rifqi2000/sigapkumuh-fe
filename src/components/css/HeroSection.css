@@ -9,6 +9,19 @@
   }
 }
 
+/* Animasi membesar dan mengecil */
+@keyframes pulseZoom {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* HeroSection.css */
 .hero-wrapper {
   background-color: #83DBF6;;
@@ -18,7 +31,7 @@
 
 
 .hero-section {
-  background: #fff;
+  background: #f7f7f7;
   border-radius: 20px;
   padding: 40px 50px 40px; /* ↓ kecilkan padding atas (semula 60px) */
   max-width: 1400px;
@@ -146,9 +159,10 @@
 
 .hero-illustration {
   width: 100%;
-  max-width: 600px; /* Sesuaikan besar gambarnya */
+  max-width: 420px; /* Sesuaikan besar gambarnya */
   height: auto;
   animation: zoomIn 0.8s ease-out forwards;
+
 }
 
 

@@ -60,7 +60,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
                 </div>
                 <div className="text-end">
                   <div className="hero-value">{jumlah_cip}</div>
-                  <div className="hero-label">CIP</div>
+                  <div className="hero-label">Kegiatan CIP</div>
                 </div>
               </div>
 
@@ -84,7 +84,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
           {/* GIF Illustration */}
           <div className="illustration-wrapper">
             <img
-              src="/img/hero-illustration.gif"
+              src="/img/sigap.jpeg"
               alt="Illustration"
               className="hero-illustration animate__animated animate__zoomInRight animate__delay-3s"
             />

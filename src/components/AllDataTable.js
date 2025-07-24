@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useId } from 'react';
 import $ from 'jquery';
 
 import 'datatables.net-bs5';
@@ -7,7 +7,7 @@ import 'datatables.net-buttons/js/buttons.html5';
 import 'datatables.net-buttons/js/buttons.print';
 import 'datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css';
 import 'datatables.net-dt/css/dataTables.dataTables.min.css';
-import './css/AllDataTable.css';
+import './css/AllDataTable.css'
 
 import 'jszip';
 import * as pdfMake from 'pdfmake/build/pdfmake';
@@ -16,15 +16,24 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.default?.pdfMake?.vfs || pdfFonts?.pdfMake?.vfs;
 
 const AllDataTable = ({ data = [], filters = {} }) => {
-  const tableRef = useRef();
+  const tableRef = useRef(null);
+  const tableId = useId();
 
   useEffect(() => {
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+    const tableEl = $(tableRef.current);
+
+    // Destroy if already initialized
+    if ($.fn.DataTable.isDataTable(tableEl)) {
+      tableEl.DataTable().destroy();
+      tableEl.empty(); // Clear thead/tbody to avoid duplicate rows
     }
 
-    setTimeout(() => {
-      const table = $(tableRef.current).DataTable({
+    // Reset export buttons
+    $('#customExportButtons').html('');
+
+    // Wait for DOM update (avoid race)
+    requestAnimationFrame(() => {
+      const table = tableEl.DataTable({
         paging: true,
         pageLength: 10,
         searching: true,
@@ -35,12 +44,12 @@ const AllDataTable = ({ data = [], filters = {} }) => {
           {
             extend: 'excelHtml5',
             titleAttr: 'Export ke Excel',
-            text: '<img src="/img/xlsx.png" alt="Excel" width="40" />'
+            text: '<img src="/img/xlsx.png" alt="Excel" width="40" />',
           },
           {
             extend: 'csvHtml5',
             titleAttr: 'Export ke CSV',
-            text: '<img src="/img/csv.png" alt="CSV" width="40" />'
+            text: '<img src="/img/csv.png" alt="CSV" width="40" />',
           },
           {
             extend: 'pdfHtml5',
@@ -64,14 +73,14 @@ const AllDataTable = ({ data = [], filters = {} }) => {
                     text: 'Dashboard Data SIGAP KUMUH',
                     style: 'header',
                     alignment: 'center',
-                    margin: [0, 0, 0, 10]
+                    margin: [0, 0, 0, 10],
                   });
                 }
               } catch (err) {
                 console.error('PDF customization error:', err);
               }
-            }
-          }
+            },
+          },
         ],
         language: {
           emptyTable: 'Tidak ada data tersedia.',
@@ -80,18 +89,18 @@ const AllDataTable = ({ data = [], filters = {} }) => {
             first: 'Pertama',
             last: 'Terakhir',
             next: '→',
-            previous: '←'
-          }
-        }
+            previous: '←',
+          },
+        },
       });
 
-      $('#customExportButtons').html('');
       table.buttons().container().appendTo('#customExportButtons');
-    }, 100);
+    });
 
     return () => {
-      if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
+      if ($.fn.DataTable.isDataTable(tableEl)) {
+        tableEl.DataTable().destroy();
+        tableEl.empty();
       }
     };
   }, [data]);
@@ -116,7 +125,6 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     <div className="card mt-4 shadow-sm">
       <div className="card-header fw-bold text-center">Tabel CIP Point di DKI Jakarta</div>
 
-      {/* Tombol Export */}
       <div className="d-flex align-items-center justify-content-between flex-wrap px-3 py-2">
         <div className="d-flex align-items-center">
           <strong className="me-2">Export to :</strong>
@@ -132,7 +140,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
             placeholder="Search"
             onChange={(e) => {
               const value = e.target.value;
-              if ($.fn.DataTable.isDataTable(tableRef.current)) {
+              if ($.fn.DataTable.isDataTable($(tableRef.current))) {
                 $(tableRef.current).DataTable().search(value).draw();
               }
             }}
@@ -140,9 +148,8 @@ const AllDataTable = ({ data = [], filters = {} }) => {
         </div>
       </div>
 
-      {/* Tabel */}
       <div className="table-responsive p-3">
-        <table ref={tableRef} className="table w-100">
+        <table ref={tableRef} id={tableId} className="table w-100">
           <thead>
             <tr>
               {columns.map((col, idx) => (

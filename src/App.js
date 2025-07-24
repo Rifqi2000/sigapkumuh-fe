@@ -34,9 +34,9 @@ function App() {
 
   const summaryData = {
     jumlah_rw_kumuh: 445,
-    jumlah_rw_implementasi: 2519,
-    jumlah_cip: 1129,
-    total_anggaran: 11000000000,
+    jumlah_rw_implementasi: 104,
+    jumlah_cip: 3674,
+    total_anggaran: 14673664072956,
   };
 
   const data = [
@@ -175,17 +175,20 @@ function App() {
             </select>
           </div>
           <div className="col-auto">
-            <button className="btn btn-outline-light" onClick={() => {
-              setSelectedTahun('');
-              setSelectedWilayah('');
-              setSelectedKecamatan('');
-              setSelectedKelurahan('');
-              setSelectedRW('');
-            }}>
+            <button
+              className="btn-reset-filter"
+              onClick={() => {
+                setSelectedTahun('');
+                setSelectedWilayah('');
+                setSelectedKecamatan('');
+                setSelectedKelurahan('');
+                setSelectedRW('');
+              }}
+            >
               <img
-                src="/img/filter.png" // pastikan path ini sesuai
+                src="/img/filter.png"
                 alt="Reset Filter"
-                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                className="filter-icon"
               />
             </button>
           </div>
