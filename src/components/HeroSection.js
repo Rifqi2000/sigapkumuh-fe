@@ -75,7 +75,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
                       currency: 'IDR',
                     })}
                   </div>
-                  <div className="hero-label">Anggaran (Rp)</div>
+                  <div className="hero-label">Anggaran</div>
                 </div>
               </div>
             </div>
