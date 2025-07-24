@@ -26,7 +26,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
 
             {/* Judul dan deskripsi */}
             <h1 className="hero-title animate__animated animate__fadeInUp animate__delay-1s">
-              DASHBOARD DATA SIGAP-KUMUH
+              DASHBOARD DATA SIGAP KUMUH
             </h1>
             <p className="hero-desc animate__animated animate__fadeInUp animate__delay-2s">
               Platform strategis yang menghubungkan seluruh pemangku kepentingan dalam satu sistem yang transparan, kolaboratif, dan responsif.
