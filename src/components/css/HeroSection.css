@@ -1,0 +1,218 @@
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* HeroSection.css */
+.hero-wrapper {
+  background-color: #83DBF6;;
+  padding-top: 30px; /* semula 20px atau lebih */
+  padding-bottom: 0;
+}
+
+
+.hero-section {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 50px 40px; /* ↓ kecilkan padding atas (semula 60px) */
+  max-width: 1400px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+
+.hero-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px; /* jika pakai gap besar, kecilkan */
+}
+
+.logo-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  animation: zoomIn 0.8s ease forwards;
+}
+
+.logo-row img {
+  height: 60px;
+  object-fit: contain;
+}
+
+
+.text-area {
+  flex: 1 1 500px;
+  padding: 20px;
+  text-align: left;
+}
+
+.logo-group {
+  height: 60px;
+  margin-bottom: 20px;
+}
+
+.hero-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.card-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-radius: 12px;
+  color: white;
+  min-width: 200px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  flex: 1 1 200px;
+  text-align: right;
+}
+
+.hero-card .icon-area {
+  font-size: 2rem;
+  margin-right: 10px;
+}
+
+.hero-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.hero-label {
+  font-size: 0.9rem;
+}
+
+.purple {
+  background-color: #585a9d;
+}
+
+.blue {
+  background-color: #0b8db5;
+}
+
+.red {
+  background-color: #e15b55;
+}
+
+.green {
+  background-color: #3f9c7e;
+}
+
+.illustration-wrapper {
+  flex: 1 1 350px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* @keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+} */
+
+.hero-illustration {
+  width: 100%;
+  max-width: 600px; /* Sesuaikan besar gambarnya */
+  height: auto;
+  animation: zoomIn 0.8s ease-out forwards;
+}
+
+
+.scroll-icon {
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 30px;
+  animation: bounce 1.5s infinite;
+  color: #000;
+}
+
+.scroll-icon-wrapper {
+  text-align: center;
+  margin-top: -30px;          /* lebih naik dari sebelumnya */
+  background-color: #83DBF6;;
+  padding-bottom: 30px;       /* sebelumnya 50–60px */
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+}
+
+
+.scroll-icon img {
+  width: 40px;
+  height: auto;
+  cursor: pointer;
+  animation: bounce 1.5s infinite;
+  filter: brightness(10);
+}
+
+
+.animate__delay-1-5s {
+  animation-delay: 1.5s;
+}
+.animate__delay-2-5s {
+  animation-delay: 2.5s;
+}
+
+
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 20px;
+    min-height: auto;
+  }
+
+  .scroll-icon-wrapper {
+    padding-bottom: 40px;
+  }
+  .logo-row {
+    gap: 20px;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .logo-row img {
+    height: 50px;
+  }
+}

@@ -1,0 +1,11 @@
+/* src/components/TableDetailCard.css */
+.table-responsive {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Hover effect */
+.table-hover tbody tr:hover {
+  background-color: #f2f2f2;
+  cursor: pointer;
+}

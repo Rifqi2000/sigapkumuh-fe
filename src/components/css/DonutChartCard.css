@@ -1,0 +1,44 @@
+.donut-body {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  height: auto;
+}
+
+.donut-wrapper {
+  width: 100%;
+  max-width: 430px;
+  aspect-ratio: 1 / 1;
+  position: relative;
+}
+
+.donut-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.donut-total {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  color: #000;
+}
+
+.donut-total h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-left: -130px;
+}
+
+.donut-total p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: -130px;
+}

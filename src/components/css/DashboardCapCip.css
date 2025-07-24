@@ -1,0 +1,31 @@
+/* src/pages/DashboardCAPCIP.css */
+.card {
+  min-height: 400px;
+}
+
+.card-header.fw-bold {
+  font-weight: 700 !important;
+}
+
+.equal-height {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 450px;
+}
+
+.card-fixed-height {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tetapkan tinggi minimum untuk menyamakan tinggi dengan donut chart */
+.card-detail-cip {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+

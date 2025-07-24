@@ -1,5 +1,5 @@
 :root {
-  --sigap-blue: #1BA9E5;
+  --sigap-blue: #83DBF6;
 }
 
 .App {
@@ -15,7 +15,7 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #1BA9E5; /* Warna SIGAP */
+  background-color: #83DBF6; /* Warna SIGAP */
 }
 
 
@@ -63,8 +63,8 @@ html, body, #root {
 }
 
 .btn-primary:hover {
-  background-color: #1694c9;
-  border-color: #1694c9;
+  background-color: var(--sigap-blue);
+  border-color: var(--sigap-blue);
 }
 
 .content-container {
@@ -107,11 +107,27 @@ html, body, #root {
   justify-content: flex-start;
 }
 
+/* src/App.css */
+.card {
+  min-height: 550px;
+}
+
+
 .card-label {
   font-size: 1.05rem;
   font-weight: 600;
   color: #007bff;
 }
+
+
+.card-equal-size {
+  min-height: 370px; /* samakan tinggi antar card */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
 
 @keyframes App-logo-spin {
   from {
