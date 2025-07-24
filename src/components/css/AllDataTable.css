@@ -5,7 +5,6 @@
   background-color: white;
 }
 
-/* Header hanya dengan garis bawah */
 .table thead th {
   border-bottom: 2px solid #dee2e6;
   border-left: none !important;
@@ -19,31 +18,21 @@
   line-height: 1.3;
 }
 
-
-/* Semua baris tabel putih tanpa garis */
 .table tbody tr {
   background-color: white !important;
   border: none !important;
 }
 
-/* Hilangkan garis antar sel */
 .table tbody td {
   border: none !important;
   padding: 12px;
 }
 
-/* Rata tengah vertikal */
 .table td,
 .table th {
   vertical-align: middle;
 }
 
-/* Hover lembut */
-/* .table-hover tbody tr:hover {
-  background-color: #f1f3f5;
-} */
-
-/* === HOVER ROW TERLIHAT JELAS === */
 .table-hover tbody tr:hover {
   background-color: #e9f5ff !important;
   cursor: pointer;
@@ -55,6 +44,10 @@
   color: #000;
 }
 
+.table th,
+.table td {
+  text-align: center;
+}
 
 /* === TOMBOL EXPORT CUSTOM === */
 #customExportButtons img {
@@ -62,8 +55,8 @@
   padding: 4px;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  box-shadow: none;
+  transition: transform 0.2s ease;
 }
 
 #customExportButtons img:hover {
@@ -73,8 +66,29 @@
 
 #customExportButtons {
   margin-bottom: 1rem;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  display: flex;
+  gap: 0.5rem;
 }
 
+/* Hapus background abu-abu pada container tombol ekspor */
+#customExportButtons,
+#customExportButtons .dt-buttons,
+#customExportButtons .dt-button,
+#customExportButtons .btn,
+.dt-button,
+.dt-buttons {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 5px !important;
+}
+
+/* Untuk konsistensi jika ada class tambahan */
 .btn-export {
   background: white;
   border: 1px solid #ddd;
@@ -122,11 +136,43 @@
   margin-top: 1rem;
 }
 
-
 /* === RESPONSIVE ADJUSTMENT === */
 @media (max-width: 768px) {
   .custom-search-box {
     width: 100%;
     margin-top: 10px;
   }
+}
+
+/* === Perbaikan akhir hover pagination (warna hitam) === */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+  border: 1px solid #dee2e6 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #e9ecef !important;
+  color: #212529 !important;
+  border: 1px solid #ced4da !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #007bff !important;
+  color: white !important;
+  border: 1px solid #007bff !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background-color: #339af0 !important;
+  color: white !important;
+  border: 1px solid #339af0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }

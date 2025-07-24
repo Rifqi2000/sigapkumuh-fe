@@ -2,6 +2,16 @@
   --sigap-blue: #83DBF6;
 }
 
+body {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+* {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+
+
 .App {
   text-align: center;
   font-family: 'Segoe UI', sans-serif;

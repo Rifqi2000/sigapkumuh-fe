@@ -36,7 +36,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
             <div className="card-summary">
               <div className="hero-card purple animate__animated animate__bounceIn animate__delay-1s">
                 <div className="icon-area">
-                  <i className="bi bi-geo-alt"></i>
+                  <i className="bi-house-dash"></i>
                 </div>
                 <div className="text-end">
                   <div className="hero-value">{jumlah_rw_kumuh}</div>
@@ -46,7 +46,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
 
               <div className="hero-card blue animate__animated animate__bounceIn animate__delay-1-5s">
                 <div className="icon-area">
-                  <i className="bi bi-building"></i>
+                  <i className="bi-building-check"></i>
                 </div>
                 <div className="text-end">
                   <div className="hero-value">{jumlah_rw_implementasi}</div>
@@ -56,7 +56,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
 
               <div className="hero-card red animate__animated animate__bounceIn animate__delay-2s">
                 <div className="icon-area">
-                  <i className="bi bi-houses"></i>
+                  <i class="bi bi-tools"></i>
                 </div>
                 <div className="text-end">
                   <div className="hero-value">{jumlah_cip}</div>
@@ -66,7 +66,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
 
               <div className="hero-card green animate__animated animate__bounceIn animate__delay-2-5s">
                 <div className="icon-area">
-                  <i className="bi bi-people"></i>
+                  <i className="bi-cash-coin"></i>
                 </div>
                 <div className="text-end">
                   <div className="hero-value">
