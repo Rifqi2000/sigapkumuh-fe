@@ -182,7 +182,11 @@ function App() {
               setSelectedKelurahan('');
               setSelectedRW('');
             }}>
-              Reset
+              <img
+                src="/img/filter.png" // pastikan path ini sesuai
+                alt="Reset Filter"
+                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+              />
             </button>
           </div>
         </div>
