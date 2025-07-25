@@ -54,8 +54,7 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
                   <td colSpan="3" className="text-end fw-bold">Total</td>
                   <td className="fw-bold">
                     {totalAnggaran.toLocaleString('id-ID', {
-                      style: 'currency',
-                      currency: 'IDR',
+                      
                     })}
                   </td>
                 </tr>

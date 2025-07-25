@@ -89,10 +89,14 @@ const DonutChartCard = ({ title, data = [], filters = {} }) => {
       </div>
       <div className="card-body donut-body">
         <div className="donut-wrapper">
-          <Doughnut data={chartData} options={options} />
-          <div className="donut-total">
-            <h3>{total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}</h3>
-            <p>Total Anggaran</p>
+          <div className="donut-chart-container">
+            <Doughnut data={chartData} options={options} />
+            <div className="donut-total">
+              <h3>
+                {total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })}
+              </h3>
+              <p>Total Anggaran</p>
+            </div>
           </div>
         </div>
       </div>

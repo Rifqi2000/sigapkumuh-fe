@@ -29,7 +29,6 @@ const BarChartCard = ({ title, filters, data }) => {
       );
     });
 
-    // Tentukan level label berdasarkan prioritas filter
     let labelKey = 'wilayah';
     if (filters.wilayah !== 'Semua') labelKey = 'kecamatan';
     if (filters.kecamatan !== 'Semua') labelKey = 'kelurahan';
@@ -51,6 +50,10 @@ const BarChartCard = ({ title, filters, data }) => {
   };
 
   const { labels, rwKumuh, cap, cip, anggaran } = getFilteredData();
+
+  // Tetapkan satuan asli (tanpa Jt/M/T)
+  const maxAnggaran = Math.max(...anggaran, 0);
+  const divisor = 1;
 
   const dataChart = {
     labels,
@@ -136,15 +139,17 @@ const BarChartCard = ({ title, filters, data }) => {
         },
       },
       y1: {
-        beginAtZero: true,
+        beginAtZero: false,
+        suggestedMax: maxAnggaran * 1.1,
         position: 'right',
         title: {
           display: true,
           text: 'Anggaran (Rp)',
         },
         ticks: {
+          stepSize: 500_000, // ✅ Jarak 500 ribu
           callback: function (value) {
-            return 'Rp ' + (value / 1_000_000_000).toFixed(0) + 'M';
+            return 'Rp ' + value.toLocaleString('id-ID');
           },
         },
         grid: {
