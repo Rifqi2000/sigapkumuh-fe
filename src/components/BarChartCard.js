@@ -17,6 +17,7 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, PointE
 const BarChartCard = ({ title, filters, data }) => {
   const getFilteredData = () => {
     const rwKumuh = [], cap = [], cip = [], anggaran = [], labels = [];
+    const labelSet = new Set();
 
     const filtered = data.filter((item) => {
       return (
@@ -28,26 +29,16 @@ const BarChartCard = ({ title, filters, data }) => {
       );
     });
 
-    filtered.forEach((item) => {
-      let label = '';
-      if (filters.rw) {
-        label = [`${item.rw}`];
-      } else if (filters.kelurahan) {
-        label = [item.kelurahan];
-      } else if (filters.kecamatan) {
-        label = [item.kecamatan];
-      } else if (filters.wilayah) {
-        if (item.wilayah.includes('Kota Adm. Jakarta')) {
-          const wilayah = item.wilayah.replace('', '');
-          label = ['Kota Adm. Jakarta', wilayah];
-        } else {
-          label = [item.wilayah];
-        }
-      } else {
-        label = [item.wilayah];
-      }
+    // Tentukan level label berdasarkan prioritas filter
+    let labelKey = 'wilayah';
+    if (filters.wilayah !== 'Semua') labelKey = 'kecamatan';
+    if (filters.kecamatan !== 'Semua') labelKey = 'kelurahan';
+    if (filters.kelurahan !== 'Semua') labelKey = 'rw';
 
-      if (!labels.find(l => JSON.stringify(l) === JSON.stringify(label))) {
+    filtered.forEach((item) => {
+      const label = item[labelKey];
+      if (!labelSet.has(label)) {
+        labelSet.add(label);
         labels.push(label);
         rwKumuh.push(item.jumlah_rw_kumuh);
         cap.push(item.jumlah_cap);
@@ -168,7 +159,7 @@ const BarChartCard = ({ title, filters, data }) => {
           padding: 10,
           callback: function (val) {
             const label = this.getLabelForValue(val);
-            return Array.isArray(label) ? label : [label];
+            return label;
           },
         },
       },
