@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useId, useMemo } from 'react';
 import $ from 'jquery';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 import 'datatables.net-bs5';
 import 'datatables.net-buttons-bs5';
@@ -34,6 +36,15 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     return filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
   }, [filteredData]);
 
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(blob, 'Tabel-CIP.xlsx');
+  };
+
   useEffect(() => {
     const tableEl = $(tableRef.current);
 
@@ -54,7 +65,12 @@ const AllDataTable = ({ data = [], filters = {} }) => {
         dom: 'Brtip',
         data: filteredData,
         columns: columns.map((col) => ({
-          title: col.replace(/_/g, ' ').toUpperCase(),
+          title:
+            col === 'anggaran_cap'
+              ? 'ANGGARAN CAP (Rp)'
+              : col === 'anggaran_cip'
+              ? 'ANGGARAN CIP (Rp)'
+              : col.replace(/_/g, ' ').toUpperCase(),
           data: col,
           className: 'text-center',
           render: function (data, type, row) {
@@ -65,11 +81,6 @@ const AllDataTable = ({ data = [], filters = {} }) => {
           }
         })),
         buttons: [
-          {
-            extend: 'excelHtml5',
-            titleAttr: 'Export ke Excel',
-            text: '<img src="/img/xlsx.png" alt="Excel" width="40" />',
-          },
           {
             extend: 'csvHtml5',
             titleAttr: 'Export ke CSV',
@@ -133,10 +144,13 @@ const AllDataTable = ({ data = [], filters = {} }) => {
 
       <div className="d-flex align-items-center justify-content-between flex-wrap px-3 py-2">
         <div className="d-flex align-items-center">
-            <strong className="me-2">Export to :</strong>
-            <div id="customExportButtons" className="d-flex gap-2"></div>
+          <strong className="me-2">Export to :</strong>
+          <div className="d-flex gap-2" id="customExportButtons">
+            <button className="btn btn-sm btn-outline-success" onClick={exportToExcel}>
+              <i className="bi bi-file-earmark-excel-fill me-1"></i> Excel
+            </button>
+          </div>
         </div>
-
 
         <div className="custom-search-box mt-2 mt-md-0">
           <i className="bi bi-search search-icon"></i>

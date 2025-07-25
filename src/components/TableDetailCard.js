@@ -1,7 +1,6 @@
 import React from 'react';
 
 const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
-  // Filter data sesuai filter aktif
   const filtered = data.filter((item) => {
     return (
       (filters.tahun === 'Semua' || item.tahun === filters.tahun) &&
@@ -12,7 +11,6 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
     );
   });
 
-  // Total anggaran berdasarkan data yang difilter
   const totalAnggaran = filtered.reduce((sum, item) => sum + (item.anggaran_cip || 0), 0);
 
   return (
@@ -28,20 +26,20 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
                 <th className="text-uppercase text-secondary small">Nama Kegiatan</th>
                 <th className="text-uppercase text-secondary small">Volume</th>
                 <th className="text-uppercase text-secondary small">Satuan</th>
-                <th className="text-uppercase text-secondary small">Anggaran (Rp)</th>
+                <th className="text-secondary small">
+                  <span className="text-uppercase">Anggaran</span> (Rp)
+                </th>
               </tr>
             </thead>
+
             <tbody>
               {filtered.length > 0 ? (
                 filtered.map((item, index) => (
                   <tr key={index}>
                     <td>{item.nama_kegiatan || 'Pekerjaan Jalan Lingkungan (ASPAL)'}</td>
-                    <td>{item.volume || '-'}</td>
+                    <td>{item.jumlah_cip || '-'}</td>
                     <td>{item.satuan || '-'}</td>
-                    <td>{(item.anggaran_cip || 0).toLocaleString('id-ID', {
-                      // style: 'currency',
-                      // currency: 'IDR',
-                    })}</td>
+                    <td>{(item.anggaran_cip || 0).toLocaleString('id-ID')}</td>
                   </tr>
                 ))
               ) : (

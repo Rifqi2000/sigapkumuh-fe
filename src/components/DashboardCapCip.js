@@ -61,8 +61,8 @@ const DashboardCAPCIP = ({ data }) => {
         <div className="col">
           <label className="fw-bold">Tahun Data</label>
           <select className="form-select" value={selectedTahun} onChange={(e) => setSelectedTahun(e.target.value)}>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
+            {/* <option value="2022">2022</option>
+            <option value="2023">2023</option> */}
             <option value="2024">2024</option>
             <option value="Semua">Semua</option>
           </select>
