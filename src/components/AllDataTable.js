@@ -92,7 +92,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
                   doc.defaultStyle.fontSize = 8;
                   doc.pageMargins = [20, 30, 20, 30];
                   doc.content.splice(0, 0, {
-                    text: 'Dashboard Data SIGAP KUMUH',
+                    text: '',
                     style: 'header',
                     alignment: 'center',
                     margin: [0, 0, 0, 10],
