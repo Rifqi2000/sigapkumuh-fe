@@ -1,163 +1,221 @@
-import React, { useRef, useState } from 'react';
-import { Bar, Doughnut } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
+import React, { useEffect, useRef, useState } from 'react';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement } from 'chart.js';
 
 import './css/DashboardCapCip.css';
 import TableDetailCard from '../components/TableDetailCard';
 import AllDataTable from '../components/AllDataTable';
+import FilterPanel from '../components/FilterPanel';
+import BarChartCard from '../components/BarChartCard';
+import DonutChartCard from '../components/DonutChartCard'; // ✅ Tambahkan
 
-ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement);
 
-const DashboardCAPCIP = ({ data }) => {
-  // Gunakan useState untuk menyimpan filter aktif
-  const [selectedTahun, setSelectedTahun] = useState('2024');
+const baseUrl = process.env.REACT_APP_API_URL;
+
+const DashboardCAPCIP = () => {
+  const [selectedTahunCAP, setSelectedTahunCAP] = useState('Semua');
+  const [selectedTahunCIP, setSelectedTahunCIP] = useState('Semua');
   const [selectedWilayah, setSelectedWilayah] = useState('Semua');
   const [selectedKecamatan, setSelectedKecamatan] = useState('Semua');
   const [selectedKelurahan, setSelectedKelurahan] = useState('Semua');
   const [selectedRW, setSelectedRW] = useState('Semua');
 
-  // Buat object filters dinamis
+  const [filterOptions, setFilterOptions] = useState({
+    tahun_cap: [],
+    tahun_cip: [],
+    wilayah: [],
+    kecamatan: [],
+    kelurahan: [],
+    rw: [],
+    data: [],
+  });
+
+  const [chartData, setChartData] = useState([]);
+  const [loadingChart, setLoadingChart] = useState(true);
+
+  const detailCIPRef = useRef(null);
+
+  const scrollToDetail = () => {
+    detailCIPRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const filters = {
-    tahun: selectedTahun,
+    tahun_cap: selectedTahunCAP,
+    tahun_cip: selectedTahunCIP,
     wilayah: selectedWilayah,
     kecamatan: selectedKecamatan,
     kelurahan: selectedKelurahan,
     rw: selectedRW,
   };
 
-  const detailCIPRef = useRef(null);
-  const onScrollClick = () => {
-    detailCIPRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const getLevelXAxis = () => {
+    if (selectedWilayah !== 'Semua' && selectedKecamatan === 'Semua') return 'kecamatan';
+    if (selectedKecamatan !== 'Semua' && selectedKelurahan === 'Semua') return 'kelurahan';
+    if (selectedKelurahan !== 'Semua') return 'rw';
+    return 'wilayah';
   };
 
-  const {
-    barChartData,
-    barChartOptions,
-    capDoughnutData,
-    cipDoughnutData,
-    totalAnggaranCIP,
-    tableData,
-  } = data;
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/filter-options`);
+        const result = await response.json();
+
+        const sortAsc = (arr) => [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+
+        result.tahun_cap = sortAsc(result.tahun_cap.map(String));
+        result.tahun_cip = sortAsc(result.tahun_cip.map(String));
+        result.wilayah = sortAsc(result.wilayah);
+
+        setFilterOptions(result);
+      } catch (error) {
+        console.error('Gagal mengambil filter:', error);
+      }
+    };
+
+    fetchFilterOptions();
+  }, []);
+
+  useEffect(() => {
+    const fetchBarChartData = async () => {
+      try {
+        setLoadingChart(true);
+
+        const level_x_axis = getLevelXAxis();
+
+        const query = new URLSearchParams({
+          tahun_cap: selectedTahunCAP,
+          tahun_cip: selectedTahunCIP,
+          wilayah: selectedWilayah,
+          kecamatan: selectedKecamatan,
+          kelurahan: selectedKelurahan,
+          rw: selectedRW,
+          level_x_axis,
+        }).toString();
+
+        const res = await fetch(`${baseUrl}/chart-bar?${query}`);
+        const data = await res.json();
+        setChartData(data);
+      } catch (err) {
+        console.error('Gagal mengambil data chart bar:', err);
+      } finally {
+        setLoadingChart(false);
+      }
+    };
+
+    fetchBarChartData();
+  }, [
+    selectedTahunCAP,
+    selectedTahunCIP,
+    selectedWilayah,
+    selectedKecamatan,
+    selectedKelurahan,
+    selectedRW,
+  ]);
+
+  const getFilteredOptions = () => {
+    const { data } = filterOptions;
+    const filterData = data || [];
+
+    const kecamatanOptions = filterData
+      .filter((d) => !selectedWilayah || d.wilayah === selectedWilayah)
+      .map((d) => d.kecamatan)
+      .filter((val, i, arr) => arr.indexOf(val) === i)
+      .sort();
+
+    const kelurahanOptions = filterData
+      .filter(
+        (d) =>
+          (!selectedWilayah || d.wilayah === selectedWilayah) &&
+          (!selectedKecamatan || d.kecamatan === selectedKecamatan)
+      )
+      .map((d) => d.kelurahan)
+      .filter((val, i, arr) => arr.indexOf(val) === i)
+      .sort();
+
+    const rwOptions = filterData
+      .filter(
+        (d) =>
+          (!selectedWilayah || d.wilayah === selectedWilayah) &&
+          (!selectedKecamatan || d.kecamatan === selectedKecamatan) &&
+          (!selectedKelurahan || d.kelurahan === selectedKelurahan)
+      )
+      .map((d) => d.rw)
+      .filter((val, i, arr) => arr.indexOf(val) === i)
+      .sort();
+
+    return { kecamatanOptions, kelurahanOptions, rwOptions };
+  };
+
+  const { kecamatanOptions, kelurahanOptions, rwOptions } = getFilteredOptions();
 
   return (
     <div id="main-content" className="container py-3">
-      {/* Filter */}
-      <div className="row mb-3 text-center">
-        <div className="col">
-          <label className="fw-bold">Tahun Data</label>
-          <select className="form-select" value={selectedTahun} onChange={(e) => setSelectedTahun(e.target.value)}>
-            {/* <option value="2022">2022</option>
-            <option value="2023">2023</option> */}
-            <option value="2024">2024</option>
-            <option value="Semua">Semua</option>
-          </select>
-        </div>
-        <div className="col">
-          <label className="fw-bold">Wilayah</label>
-          <select className="form-select" value={selectedWilayah} onChange={(e) => setSelectedWilayah(e.target.value)}>
-            <option value="Semua">Semua</option>
-            <option value="Pusat">Pusat</option>
-            <option value="Barat">Barat</option>
-            <option value="Selatan">Selatan</option>
-            <option value="Utara">Utara</option>
-            <option value="Timur">Timur</option>
-          </select>
-        </div>
-        <div className="col">
-          <label className="fw-bold">Kecamatan</label>
-          <select className="form-select" value={selectedKecamatan} onChange={(e) => setSelectedKecamatan(e.target.value)}>
-            <option value="Semua">Semua</option>
-            {/* Tambahkan opsi kecamatan sesuai data */}
-          </select>
-        </div>
-        <div className="col">
-          <label className="fw-bold">Kelurahan</label>
-          <select className="form-select" value={selectedKelurahan} onChange={(e) => setSelectedKelurahan(e.target.value)}>
-            <option value="Semua">Semua</option>
-            {/* Tambahkan opsi kelurahan */}
-          </select>
-        </div>
-        <div className="col">
-          <label className="fw-bold">RW</label>
-          <select className="form-select" value={selectedRW} onChange={(e) => setSelectedRW(e.target.value)}>
-            <option value="Semua">Semua</option>
-            {/* Tambahkan opsi RW */}
-          </select>
-        </div>
-      </div>
+      <FilterPanel
+        selectedTahunCAP={selectedTahunCAP}
+        selectedTahunCIP={selectedTahunCIP}
+        selectedWilayah={selectedWilayah}
+        selectedKecamatan={selectedKecamatan}
+        selectedKelurahan={selectedKelurahan}
+        selectedRW={selectedRW}
+        onChangeTahunCAP={(e) => setSelectedTahunCAP(e.target.value)}
+        onChangeTahunCIP={(e) => setSelectedTahunCIP(e.target.value)}
+        onChangeWilayah={(e) => {
+          setSelectedWilayah(e.target.value);
+          setSelectedKecamatan('Semua');
+          setSelectedKelurahan('Semua');
+          setSelectedRW('Semua');
+        }}
+        onChangeKecamatan={(e) => {
+          setSelectedKecamatan(e.target.value);
+          setSelectedKelurahan('Semua');
+          setSelectedRW('Semua');
+        }}
+        onChangeKelurahan={(e) => {
+          setSelectedKelurahan(e.target.value);
+          setSelectedRW('Semua');
+        }}
+        onChangeRW={(e) => setSelectedRW(e.target.value)}
+        onReset={() => {
+          setSelectedTahunCAP('Semua');
+          setSelectedTahunCIP('Semua');
+          setSelectedWilayah('Semua');
+          setSelectedKecamatan('Semua');
+          setSelectedKelurahan('Semua');
+          setSelectedRW('Semua');
+        }}
+        filterOptions={filterOptions}
+        filteredOptions={{ kecamatanOptions, kelurahanOptions, rwOptions }}
+      />
 
-      {/* Grafik Bar dan Donat CAP */}
-      <div className="row g-3 mb-3">
+      <div className="row g-3 my-4">
         <div className="col-md-6">
-          <div className="card p-3 shadow-sm">
-            <h5>CAP dan CIP berdasarkan RW Kumuh</h5>
-            <div style={{ height: 300 }}>
-              <Bar data={barChartData} options={barChartOptions} />
-            </div>
-          </div>
+          <BarChartCard
+            title="CAP dan CIP berdasarkan RW Kumuh"
+            filters={filters}
+            data={chartData}
+            loading={loadingChart}
+          />
         </div>
-
-        <div className="col-md-6 d-flex">
-          <div className="card p-3 shadow-sm flex-fill d-flex flex-column">
-            <div className="card-header text-center fw-bold">Persentase Anggaran CAP</div>
-            <div className="flex-grow-1 d-flex justify-content-center align-items-center position-relative">
-              <div style={{ width: '250px', height: '250px' }}>
-                <Doughnut data={capDoughnutData} options={{ cutout: '70%' }} />
-              </div>
-            </div>
-          </div>
+        <div className="col-md-6">
+          <DonutChartCard title="Persentase Anggaran CAP" filters={filters} />
         </div>
       </div>
 
-      {/* Detail dan Donat CIP */}
       <div className="row g-3" ref={detailCIPRef}>
         <div className="col-md-6">
-          <div className="card card-detail-cip w-100">
+          <div className="card card-detail-cip w-100 h-100">
             <div className="card-header text-center fw-bold">Detail CIP</div>
-            <TableDetailCard filters={filters} data={tableData} />
+            <TableDetailCard filters={filters} data={[]} />
           </div>
         </div>
 
         <div className="col-md-6">
-          <div className="card w-100">
-            <div className="card-header text-center fw-bold">Persentase Anggaran CIP</div>
-            <div className="flex-grow-1 d-flex justify-content-center align-items-center position-relative p-3">
-              <div style={{ width: '250px', height: '250px' }}>
-                <Doughnut data={cipDoughnutData} options={{ cutout: '70%' }} />
-                <div className="position-absolute top-50 start-50 translate-middle text-center fw-bold">
-                  <h5 className="m-0">
-                    {totalAnggaranCIP.toLocaleString('id-ID', {
-                      style: 'currency',
-                      currency: 'IDR',
-                    })}
-                  </h5>
-                  <p className="m-0">Total Anggaran</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DonutChartCard title="Persentase Anggaran CIP" filters={filters} />
         </div>
 
-        {/* Tabel Besar Seluruh Data */}
-        <div className="row mt-4">
-          <div className="col-12">
-            <AllDataTable data={tableData} filters={filters} />
-          </div>
+        <div className="col-12 mt-4">
+          <AllDataTable data={[]} filters={filters} />
         </div>
       </div>
     </div>

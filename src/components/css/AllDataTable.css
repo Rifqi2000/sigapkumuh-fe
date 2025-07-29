@@ -3,6 +3,8 @@
   border-collapse: collapse;
   width: 100%;
   background-color: white;
+  table-layout: auto;
+  word-break: break-word;
 }
 
 .table thead th {
@@ -14,7 +16,7 @@
   padding: 12px;
   text-align: center;
   vertical-align: middle;
-  white-space: normal;
+  white-space: nowrap;
   line-height: 1.3;
 }
 
@@ -31,6 +33,7 @@
 .table td,
 .table th {
   vertical-align: middle;
+  text-align: center;
 }
 
 .table-hover tbody tr:hover {
@@ -44,12 +47,26 @@
   color: #000;
 }
 
-.table th,
-.table td {
-  text-align: center;
+/* === WRAPPER RESPONSIF TABEL === */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* === TOMBOL EXPORT CUSTOM === */
+#customExportButtons {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
 #customExportButtons img {
   border: 1px solid #ccc;
   padding: 4px;
@@ -57,6 +74,8 @@
   border-radius: 8px;
   box-shadow: none;
   transition: transform 0.2s ease;
+  width: 36px;
+  height: 36px;
 }
 
 #customExportButtons img:hover {
@@ -64,31 +83,6 @@
   cursor: pointer;
 }
 
-#customExportButtons {
-  margin-bottom: 1rem;
-  background-color: transparent !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  display: flex;
-  gap: 0.5rem;
-}
-
-/* Hapus background abu-abu pada container tombol ekspor */
-#customExportButtons,
-#customExportButtons .dt-buttons,
-#customExportButtons .dt-button,
-#customExportButtons .btn,
-.dt-button,
-.dt-buttons {
-  background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 5px !important;
-}
-
-/* Untuk konsistensi jika ada class tambahan */
 .btn-export {
   background: white;
   border: 1px solid #ddd;
@@ -109,7 +103,8 @@
 /* === CUSTOM SEARCH STYLING === */
 .custom-search-box {
   position: relative;
-  width: 250px;
+  width: 300px;
+  margin-bottom: 1rem;
 }
 
 .custom-search-box .search-icon {
@@ -119,6 +114,7 @@
   transform: translateY(-50%);
   font-size: 1.2rem;
   z-index: 2;
+  color: #666;
 }
 
 .custom-search-box input.form-control {
@@ -134,6 +130,36 @@
   display: flex;
   justify-content: center !important;
   margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* === PAGINATION STYLING === */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+  border: 1px solid #dee2e6 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: #e9ecef !important;
+  color: #212529 !important;
+  border: 1px solid #ced4da !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #007bff !important;
+  color: white !important;
+  border: 1px solid #007bff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background-color: #339af0 !important;
+  border-color: #339af0 !important;
 }
 
 /* === RESPONSIVE ADJUSTMENT === */
@@ -142,37 +168,43 @@
     width: 100%;
     margin-top: 10px;
   }
+
+  #customExportButtons {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .table thead th,
+  .table tbody td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
 }
 
-/* === Perbaikan akhir hover pagination (warna hitam) === */
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-  background-color: #f8f9fa !important;
-  color: #212529 !important;
-  border: 1px solid #dee2e6 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
+@media (max-width: 480px) {
+  .custom-search-box input.form-control {
+    height: 34px;
+    font-size: 0.9rem;
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-  background-color: #e9ecef !important;
-  color: #212529 !important;
-  border: 1px solid #ced4da !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
+  .custom-search-box .search-icon {
+    font-size: 1rem;
+    left: 10px;
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current {
-  background-color: #007bff !important;
-  color: white !important;
-  border: 1px solid #007bff !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
+  #customExportButtons img {
+    width: 30px;
+    height: 30px;
+  }
 
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-  background-color: #339af0 !important;
-  color: white !important;
-  border: 1px solid #339af0 !important;
-  box-shadow: none !important;
-  outline: none !important;
+  .dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
 }

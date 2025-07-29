@@ -1,22 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './css/HeroSection.css';
 import 'animate.css';
 
-const HeroSection = ({ summary = {}, onScrollClick }) => {
-  const {
-    jumlah_rw_kumuh = 0,
-    jumlah_rw_implementasi = 0,
-    jumlah_cip = 0,
-    total_anggaran = 0,
-  } = summary;
+const HeroSection = ({ onScrollClick }) => {
+  const [summary, setSummary] = useState({
+    jumlah_rw_kumuh: 0,
+    jumlah_rw_implementasi: 0,
+    jumlah_cip: 0,
+    total_anggaran: 0,
+  });
 
+  const baseUrl = process.env.REACT_APP_API_URL;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [rwKumuh, rwImpl, cip, anggaran] = await Promise.all([
+          fetch(`${baseUrl}/jumlahrwkumuh`).then((res) => res.json()),
+          fetch(`${baseUrl}/rwimplementasi`).then((res) => res.json()),
+          fetch(`${baseUrl}/jumlahkegiatancip`).then((res) => res.json()),
+          fetch(`${baseUrl}/jumlahanggaran`).then((res) => res.json()),
+        ]);
+
+        setSummary({
+          jumlah_rw_kumuh: rwKumuh.jumlah_rw_kumuh,
+          jumlah_rw_implementasi: rwImpl.jumlah_rw_implementasi,
+          jumlah_cip: cip.jumlah_cip,
+          total_anggaran: anggaran.total_anggaran,
+        });
+      } catch (error) {
+        console.error('❌ Gagal memuat data Hero Section:', error);
+      }
+    };
+
+    fetchData();
+  }, [baseUrl]);
+
+  const {
+    jumlah_rw_kumuh,
+    jumlah_rw_implementasi,
+    jumlah_cip,
+    total_anggaran,
+  } = summary;
 
   return (
     <div className="hero-wrapper">
       <div className="hero-section">
         <div className="hero-content">
           <div className="text-area text-start">
-            {/* Logo Bar dengan animasi ZoomIn */}
+            {/* Logo Bar */}
             <div className="logo-row animate__animated animate__zoomInLeft animate__delay-0s">
               <img src="/img/LANRI.png" alt="LAN RI" />
               <img src="/img/JAYARAYA.png" alt="Jaya Raya" />
@@ -24,7 +56,6 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
               <img src="/img/DPRKP.png" alt="DPRKP" />
             </div>
 
-            {/* Judul dan deskripsi */}
             <h1 className="hero-title animate__animated animate__fadeInUp animate__delay-1s">
               DASHBOARD DATA SIGAP KUMUH
             </h1>
@@ -56,7 +87,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
 
               <div className="hero-card red animate__animated animate__bounceIn animate__delay-2s">
                 <div className="icon-area">
-                  <i class="bi bi-tools"></i>
+                  <i className="bi bi-tools"></i>
                 </div>
                 <div className="text-end">
                   <div className="hero-value">{jumlah_cip}</div>
@@ -81,7 +112,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
             </div>
           </div>
 
-          {/* GIF Illustration */}
+          {/* Illustration */}
           <div className="illustration-wrapper">
             <img
               src="/img/sigap.jpeg"
@@ -92,7 +123,7 @@ const HeroSection = ({ summary = {}, onScrollClick }) => {
         </div>
       </div>
 
-      {/* Scroll down arrow */}
+      {/* Scroll Down Arrow */}
       <div className="scroll-icon-wrapper">
         <div className="scroll-icon" onClick={onScrollClick}>
           <img src="/img/arrow.png" alt="Scroll Down" />

@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useId, useMemo } from 'react';
 import $ from 'jquery';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 
 import 'datatables.net-bs5';
 import 'datatables.net-buttons-bs5';
@@ -23,11 +21,11 @@ const AllDataTable = ({ data = [], filters = {} }) => {
   const filteredData = useMemo(() => {
     return data.filter((row) => {
       return (
-        (filters.tahun === 'Semua' || row.tahun === filters.tahun) &&
-        (filters.wilayah === 'Semua' || row.wilayah === filters.wilayah) &&
-        (filters.kecamatan === 'Semua' || row.kecamatan === filters.kecamatan) &&
-        (filters.kelurahan === 'Semua' || row.kelurahan === filters.kelurahan) &&
-        (filters.rw === 'Semua' || row.rw === filters.rw)
+        (filters.tahun_cip === 'Semua' || String(row.tahun) === String(filters.tahun_cip)) &&
+        (filters.wilayah === '' || row.nama_kabkota === filters.wilayah) &&
+        (filters.kecamatan === '' || row.nama_kec === filters.kecamatan) &&
+        (filters.kelurahan === '' || row.nama_kel === filters.kelurahan) &&
+        (filters.rw === '' || row.nama_rw === filters.rw)
       );
     });
   }, [data, filters]);
@@ -35,15 +33,6 @@ const AllDataTable = ({ data = [], filters = {} }) => {
   const columns = useMemo(() => {
     return filteredData.length > 0 ? Object.keys(filteredData[0]) : [];
   }, [filteredData]);
-
-  const exportToExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'Tabel-CIP.xlsx');
-  };
 
   useEffect(() => {
     const tableEl = $(tableRef.current);
@@ -65,22 +54,22 @@ const AllDataTable = ({ data = [], filters = {} }) => {
         dom: 'Brtip',
         data: filteredData,
         columns: columns.map((col) => ({
-          title:
-            col === 'anggaran_cap'
-              ? 'ANGGARAN CAP (Rp)'
-              : col === 'anggaran_cip'
-              ? 'ANGGARAN CIP (Rp)'
-              : col.replace(/_/g, ' ').toUpperCase(),
+          title: col.replace(/_/g, ' ').toUpperCase(),
           data: col,
           className: 'text-center',
-          render: function (data, type, row) {
+          render: function (data) {
             if (col.toLowerCase().includes('anggaran') && !isNaN(data)) {
               return parseInt(data).toLocaleString('id-ID');
             }
             return data;
-          }
+          },
         })),
         buttons: [
+          {
+            extend: 'excelHtml5',
+            titleAttr: 'Export ke Excel',
+            text: '<img src="/img/xlsx.png" alt="Excel" width="40" />',
+          },
           {
             extend: 'csvHtml5',
             titleAttr: 'Export ke CSV',
@@ -140,36 +129,42 @@ const AllDataTable = ({ data = [], filters = {} }) => {
 
   return (
     <div className="card mt-4 shadow-sm">
-      <div className="card-header fw-bold text-center">Tabel CIP Point di DKI Jakarta</div>
+      <div className="card-header fw-bold text-center">
+        Tabel CIP di DKI Jakarta
+      </div>
 
-      <div className="d-flex align-items-center justify-content-between flex-wrap px-3 py-2">
-        <div className="d-flex align-items-center">
-          <strong className="me-2">Export to :</strong>
-          <div className="d-flex gap-2" id="customExportButtons">
-            <button className="btn btn-sm btn-outline-success" onClick={exportToExcel}>
-              <i className="bi bi-file-earmark-excel-fill me-1"></i> Excel
-            </button>
+      <div className="card-body p-2 p-md-4">
+        {/* === Export Button + Search Box === */}
+        <div className="d-flex align-items-center justify-content-between flex-wrap px-2 px-md-3 mb-3">
+          <div className="d-flex align-items-center flex-wrap">
+            <strong className="me-2">Export to :</strong>
+            <div id="customExportButtons" className="d-flex gap-2 flex-wrap"></div>
+          </div>
+
+          <div className="custom-search-box mt-2 mt-md-0">
+            <i className="bi bi-search search-icon"></i>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search"
+              onChange={(e) => {
+                const value = e.target.value;
+                if ($.fn.DataTable.isDataTable($(tableRef.current))) {
+                  $(tableRef.current).DataTable().search(value).draw();
+                }
+              }}
+            />
           </div>
         </div>
 
-        <div className="custom-search-box mt-2 mt-md-0">
-          <i className="bi bi-search search-icon"></i>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search"
-            onChange={(e) => {
-              const value = e.target.value;
-              if ($.fn.DataTable.isDataTable($(tableRef.current))) {
-                $(tableRef.current).DataTable().search(value).draw();
-              }
-            }}
+        {/* === Tabel === */}
+        <div className="table-responsive">
+          <table
+            ref={tableRef}
+            id={tableId}
+            className="table table-hover w-100"
           />
         </div>
-      </div>
-
-      <div className="table-responsive p-3">
-        <table ref={tableRef} id={tableId} className="table table-hover w-100" />
       </div>
     </div>
   );

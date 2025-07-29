@@ -9,3 +9,15 @@
   background-color: #f2f2f2;
   cursor: pointer;
 }
+
+.custom-btn {
+  background-color: transparent;
+  color: black !important;
+  border: 1px solid #ced4da;
+}
+
+.custom-btn:disabled {
+  background-color: #e9ecef !important;
+  color: black !important;
+  opacity: 1;
+}

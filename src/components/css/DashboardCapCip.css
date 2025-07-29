@@ -1,12 +1,26 @@
 /* src/pages/DashboardCAPCIP.css */
+
+/* ==================== CARD DASAR ==================== */
 .card {
   min-height: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
+/* ==================== HEADER CARD ==================== */
 .card-header.fw-bold {
   font-weight: 700 !important;
+  font-size: 1.1rem;
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 1rem;
 }
 
+/* ==================== CARD SERAGAM TINGGI ==================== */
 .equal-height {
   display: flex;
   flex-direction: column;
@@ -14,18 +28,161 @@
   min-height: 450px;
 }
 
+/* Untuk Donut Chart dan Table agar sama tinggi */
 .card-fixed-height {
   min-height: 500px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
-/* Tetapkan tinggi minimum untuk menyamakan tinggi dengan donut chart */
+/* Detail Card (CIP) lebih pendek karena hanya tabel atau info ringkas */
 .card-detail-cip {
   min-height: 100px;
   display: flex;
   flex-direction: column;
 }
 
+/* Label tengah di tengah Donut Chart */
+.doughnut-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
 
+/* ==================== RESPONSIVE BREAKPOINT ==================== */
 
+/* Tablet dan ke bawah */
+@media (max-width: 992px) {
+  .card,
+  .equal-height,
+  .card-fixed-height,
+  .card-detail-cip {
+    min-height: auto;
+    height: auto;
+  }
+
+  .card-header.fw-bold {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .doughnut-center-label h5 {
+    font-size: 1rem;
+  }
+
+  .doughnut-center-label p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Smartphone */
+@media (max-width: 576px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .card-header.fw-bold {
+    font-size: 0.95rem;
+  }
+
+  .form-select {
+    font-size: 0.9rem;
+  }
+}
+/* src/pages/DashboardCAPCIP.css */
+
+/* ==================== CARD DASAR ==================== */
+.card {
+  min-height: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==================== HEADER CARD ==================== */
+.card-header.fw-bold {
+  font-weight: 700 !important;
+  font-size: 1.1rem;
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* ==================== CARD SERAGAM TINGGI ==================== */
+.equal-height {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 450px;
+}
+
+/* Untuk Donut Chart dan Table agar sama tinggi */
+.card-fixed-height {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Detail Card (CIP) lebih pendek karena hanya tabel atau info ringkas */
+.card-detail-cip {
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label tengah di tengah Donut Chart */
+.doughnut-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* ==================== RESPONSIVE BREAKPOINT ==================== */
+
+/* Tablet dan ke bawah */
+@media (max-width: 992px) {
+  .card,
+  .equal-height,
+  .card-fixed-height,
+  .card-detail-cip {
+    min-height: auto;
+    height: auto;
+  }
+
+  .card-header.fw-bold {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .doughnut-center-label h5 {
+    font-size: 1rem;
+  }
+
+  .doughnut-center-label p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Smartphone */
+@media (max-width: 576px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .card-header.fw-bold {
+    font-size: 0.95rem;
+  }
+
+  .form-select {
+    font-size: 0.9rem;
+  }
+}

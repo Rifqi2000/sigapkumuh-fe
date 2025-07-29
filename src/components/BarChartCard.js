@@ -12,48 +12,50 @@ import {
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, PointElement, LineElement);
+ChartJS.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  PointElement,
+  LineElement
+);
 
-const BarChartCard = ({ title, filters, data }) => {
-  const getFilteredData = () => {
-    const rwKumuh = [], cap = [], cip = [], anggaran = [], labels = [];
-    const labelSet = new Set();
+const BarChartCard = ({ title, filters, data, loading }) => {
+  const getProcessedData = () => {
+    if (!Array.isArray(data)) return {
+      labels: [],
+      jumlahRwKumuh: [],
+      jumlahCAP: [],
+      jumlahCIP: [],
+      anggaranCIP: [],
+    };
 
-    const filtered = data.filter((item) => {
-      return (
-        (filters.tahun === 'Semua' || item.tahun === filters.tahun) &&
-        (filters.wilayah === 'Semua' || item.wilayah === filters.wilayah) &&
-        (filters.kecamatan === 'Semua' || item.kecamatan === filters.kecamatan) &&
-        (filters.kelurahan === 'Semua' || item.kelurahan === filters.kelurahan) &&
-        (filters.rw === 'Semua' || item.rw === filters.rw)
-      );
+    const labels = [];
+    const jumlahRwKumuh = [];
+    const jumlahCAP = [];
+    const jumlahCIP = [];
+    const anggaranCIP = [];
+
+    data.forEach((item) => {
+      labels.push(item.label);
+      jumlahRwKumuh.push(item.jumlah_rw_kumuh);
+      jumlahCAP.push(item.jumlah_rw_cap);
+      jumlahCIP.push(item.jumlah_rw_cip);
+      anggaranCIP.push(item.total_anggaran_cip);
     });
 
-    let labelKey = 'wilayah';
-    if (filters.wilayah !== 'Semua') labelKey = 'kecamatan';
-    if (filters.kecamatan !== 'Semua') labelKey = 'kelurahan';
-    if (filters.kelurahan !== 'Semua') labelKey = 'rw';
-
-    filtered.forEach((item) => {
-      const label = item[labelKey];
-      if (!labelSet.has(label)) {
-        labelSet.add(label);
-        labels.push(label);
-        rwKumuh.push(item.jumlah_rw_kumuh);
-        cap.push(item.jumlah_cap);
-        cip.push(item.jumlah_cip);
-        anggaran.push(item.anggaran_cip);
-      }
-    });
-
-    return { labels, rwKumuh, cap, cip, anggaran };
+    return {
+      labels,
+      jumlahRwKumuh,
+      jumlahCAP,
+      jumlahCIP,
+      anggaranCIP,
+    };
   };
 
-  const { labels, rwKumuh, cap, cip, anggaran } = getFilteredData();
-
-  // Tetapkan satuan asli (tanpa Jt/M/T)
-  const maxAnggaran = Math.max(...anggaran, 0);
-  const divisor = 1;
+  const { labels, jumlahRwKumuh, jumlahCAP, jumlahCIP, anggaranCIP } = getProcessedData();
 
   const dataChart = {
     labels,
@@ -61,34 +63,28 @@ const BarChartCard = ({ title, filters, data }) => {
       {
         type: 'bar',
         label: 'Jumlah RW Kumuh',
-        data: rwKumuh,
+        data: jumlahRwKumuh,
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
         maxBarThickness: 60,
-        categoryPercentage: 0.9,
-        barPercentage: 1.0,
       },
       {
         type: 'bar',
         label: 'Jumlah CAP',
-        data: cap,
+        data: jumlahCAP,
         backgroundColor: 'rgba(255, 206, 86, 0.6)',
         maxBarThickness: 60,
-        categoryPercentage: 0.9,
-        barPercentage: 1.0,
       },
       {
         type: 'bar',
         label: 'Jumlah CIP',
-        data: cip,
+        data: jumlahCIP,
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
         maxBarThickness: 60,
-        categoryPercentage: 0.9,
-        barPercentage: 1.0,
       },
       {
         type: 'line',
         label: 'Jumlah Anggaran CIP',
-        data: anggaran,
+        data: anggaranCIP,
         yAxisID: 'y1',
         xAxisID: 'x1',
         borderColor: 'rgba(153, 102, 255, 1)',
@@ -104,12 +100,7 @@ const BarChartCard = ({ title, filters, data }) => {
     responsive: true,
     maintainAspectRatio: false,
     layout: {
-      padding: {
-        top: 10,
-        right: 10,
-        bottom: 20,
-        left: 10,
-      },
+      padding: { top: 10, right: 10, bottom: 20, left: 10 },
     },
     plugins: {
       legend: {
@@ -127,34 +118,20 @@ const BarChartCard = ({ title, filters, data }) => {
     scales: {
       y: {
         beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Jumlah',
-        },
-        ticks: {
-          padding: 10,
-        },
-        grid: {
-          drawTicks: true,
-        },
+        title: { display: true, text: 'Jumlah' },
+        ticks: { padding: 10 },
+        grid: { drawTicks: true },
       },
       y1: {
-        beginAtZero: false,
-        suggestedMax: maxAnggaran * 1.1,
+        beginAtZero: true,
         position: 'right',
-        title: {
-          display: true,
-          text: 'Anggaran (Rp)',
-        },
+        title: { display: true, text: 'Anggaran (Rp)' },
         ticks: {
-          stepSize: 500_000, // ✅ Jarak 500 ribu
           callback: function (value) {
-            return 'Rp ' + value.toLocaleString('id-ID');
+            return 'Rp ' + (value / 1_000_000_000).toFixed(0) + 'M';
           },
         },
-        grid: {
-          drawOnChartArea: false,
-        },
+        grid: { drawOnChartArea: false },
       },
       x: {
         type: 'category',
@@ -162,10 +139,6 @@ const BarChartCard = ({ title, filters, data }) => {
         ticks: {
           autoSkip: false,
           padding: 10,
-          callback: function (val) {
-            const label = this.getLabelForValue(val);
-            return label;
-          },
         },
       },
       x1: {
@@ -182,7 +155,11 @@ const BarChartCard = ({ title, filters, data }) => {
       <div className="card-header bg-light text-center fw-bold">{title}</div>
       <div className="card-body">
         <div className="chart-container" style={{ height: '430px', width: '100%' }}>
-          <Chart type="bar" data={dataChart} options={options} />
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center h-100">Loading...</div>
+          ) : (
+            <Chart type="bar" data={dataChart} options={options} />
+          )}
         </div>
       </div>
     </div>
