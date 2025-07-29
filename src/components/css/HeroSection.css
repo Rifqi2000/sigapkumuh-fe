@@ -24,9 +24,10 @@
 
 /* HeroSection.css */
 .hero-wrapper {
-  background-color: #83DBF6;;
-  padding-top: 30px; /* semula 20px atau lebih */
-  padding-bottom: 0;
+  background-color: #83DBF6;
+  /* padding-top: 30px; semula 20px atau lebih */
+  /* padding-bottom: 0; */
+  padding: 12px;
 }
 
 
@@ -34,7 +35,8 @@
   background: #f7f7f7;
   border-radius: 20px;
   padding: 40px 50px 40px; /* ↓ kecilkan padding atas (semula 60px) */
-  max-width: 1400px;
+  /* max-width: 1400px; */
+  /* margin: 12px; */
   margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -97,13 +99,16 @@
 }
 
 .hero-card {
+  height: 110px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
   border-radius: 12px;
   color: white;
-  min-width: 200px;
+  width: 100%;
+  /* min-width: 200px; */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   flex: 1 1 200px;
   text-align: right;
