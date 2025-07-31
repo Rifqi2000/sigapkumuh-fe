@@ -56,7 +56,7 @@
 
 /* === TOMBOL EXPORT CUSTOM === */
 #customExportButtons {
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   display: flex;
   gap: 0.5rem;
   background-color: transparent !important;

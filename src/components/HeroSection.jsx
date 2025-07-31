@@ -70,7 +70,7 @@ const HeroSection = ({ onScrollClick }) => {
               {/* <div className="card-summary"> */}
               <Container>
                 <Row>
-                  <Col xs={12} sm={12} md={12} lg={12} xl={4}>
+                  <Col xs={12} sm={12} md={12} lg={12} xl={4} className="p-1">
                     <div className="hero-card purple animate__animated animate__bounceIn animate__delay-1s">
                       <div className="icon-area">
                         <i className="bi-house-dash"></i>
@@ -81,7 +81,7 @@ const HeroSection = ({ onScrollClick }) => {
                       </div>
                     </div>
                   </Col>
-                  <Col xs={12} sm={12} md={12} lg={12} xl={4}>
+                  <Col xs={12} sm={12} md={12} lg={12} xl={4} className="p-1">
                     <div className="hero-card blue animate__animated animate__bounceIn animate__delay-1-5s">
                       <div className="icon-area">
                         <i className="bi-building-check"></i>
@@ -94,7 +94,7 @@ const HeroSection = ({ onScrollClick }) => {
                       </div>
                     </div>
                   </Col>
-                  <Col xs={12} sm={12} md={12} lg={12} xl={4}>
+                  <Col xs={12} sm={12} md={12} lg={12} xl={4} className="p-1">
                     <div className="hero-card red animate__animated animate__bounceIn animate__delay-2s">
                       <div className="icon-area">
                         <i className="bi bi-tools"></i>
@@ -107,7 +107,7 @@ const HeroSection = ({ onScrollClick }) => {
                   </Col>
                 </Row>
                 <Row>
-                  <Col xs={12} sm={12} md={12} lg={12}>
+                  <Col xs={12} sm={12} md={12} lg={12} className="p-0">
                     <div className="hero-card green animate__animated animate__bounceIn animate__delay-2-5s">
                       <div className="icon-area">
                         <i className="bi-cash-coin"></i>
@@ -129,7 +129,7 @@ const HeroSection = ({ onScrollClick }) => {
             </div>
           </Col>
 
-          <Col xs={12} sm={12} md={12} lg={6}>
+          <Col xs={12} sm={12} md={12} lg={6} className="hero-illustration">
             {/* Illustration */}
             {/* <div className="illustration-wrapper"> */}
               <img

@@ -3,6 +3,7 @@
     opacity: 0;
     transform: scale(0.5);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -14,9 +15,11 @@
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
+
   100% {
     transform: scale(1);
   }
@@ -24,29 +27,29 @@
 
 /* HeroSection.css */
 .hero-wrapper {
-  background-color: #83DBF6;
+  background-color: #83dbf6;
   /* padding-top: 30px; semula 20px atau lebih */
   /* padding-bottom: 0; */
   padding: 12px;
 }
 
-
 .hero-section {
   background: #f7f7f7;
   border-radius: 20px;
-  padding: 40px 50px 40px; /* ↓ kecilkan padding atas (semula 60px) */
+  padding: 40px 50px 40px;
+  /* ↓ kecilkan padding atas (semula 60px) */
   /* max-width: 1400px; */
   /* margin: 12px; */
   margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-
 .hero-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 30px; /* jika pakai gap besar, kecilkan */
+  gap: 30px;
+  /* jika pakai gap besar, kecilkan */
 }
 
 .logo-row {
@@ -58,12 +61,6 @@
   flex-wrap: wrap;
   animation: zoomIn 0.8s ease forwards;
 }
-
-.logo-row img {
-  height: 60px;
-  object-fit: contain;
-}
-
 
 .text-area {
   flex: 1 1 500px;
@@ -151,25 +148,16 @@
   padding: 20px;
 }
 
-/* @keyframes zoomIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-} */
-
 .hero-illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  max-width: 420px; /* Sesuaikan besar gambarnya */
+  max-width: 420px;
+  /* Sesuaikan besar gambarnya */
   height: auto;
   animation: zoomIn 0.8s ease-out forwards;
-
 }
-
 
 .scroll-icon {
   font-size: 2rem;
@@ -181,13 +169,14 @@
 
 .scroll-icon-wrapper {
   text-align: center;
-  margin-top: -30px;          /* lebih naik dari sebelumnya */
-  background-color: #83DBF6;;
-  padding-bottom: 30px;       /* sebelumnya 50–60px */
+  margin-top: -30px;
+  /* lebih naik dari sebelumnya */
+  background-color: #83dbf6;
+  padding-bottom: 30px;
+  /* sebelumnya 50–60px */
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
 }
-
 
 .scroll-icon img {
   width: 40px;
@@ -197,22 +186,44 @@
   filter: brightness(10);
 }
 
-
 .animate__delay-1-5s {
   animation-delay: 1.5s;
 }
+
 .animate__delay-2-5s {
   animation-delay: 2.5s;
 }
 
-
-
 @keyframes bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(10px);
+  }
+}
+
+@media (max-width: 399px) {
+  .logo-row img {
+    height: 30px;
+    object-fit: contain;
+  }
+}
+
+@media (min-width: 400px) and (max-width: 576px) {
+  .logo-row img {
+    height: 42px;
+    object-fit: contain;
+  }
+}
+
+@media (min-width: 577px) {
+  .logo-row img {
+    height: 60px;
+    object-fit: contain;
   }
 }
 
@@ -225,13 +236,16 @@
   .scroll-icon-wrapper {
     padding-bottom: 40px;
   }
+
   .logo-row {
     gap: 20px;
     flex-direction: row;
     flex-wrap: wrap;
   }
+}
 
-  .logo-row img {
-    height: 50px;
+@media (min-width: 1200px) and (max-width: 1330px) {
+  .hero-label {
+    font-size: 0.8rem;
   }
 }
