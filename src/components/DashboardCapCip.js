@@ -58,7 +58,9 @@ const DashboardCAPCIP = () => {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await fetch(`${baseUrl}/filter-options`);
+        const response = await fetch(`${baseUrl}/filter-options`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const result = await response.json();
 
         const sortAsc = (arr) => [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
@@ -93,7 +95,9 @@ const DashboardCAPCIP = () => {
           level_x_axis,
         }).toString();
 
-        const res = await fetch(`${baseUrl}/chart-bar?${query}`);
+        const res = await fetch(`${baseUrl}/chart-bar?${query}`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const data = await res.json();
         setChartData(data);
       } catch (err) {

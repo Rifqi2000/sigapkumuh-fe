@@ -19,10 +19,10 @@ const HeroSection = ({ onScrollClick }) => {
     const fetchData = async () => {
       try {
         const [rwKumuh, rwImpl, cip, anggaran] = await Promise.all([
-          fetch(`${baseUrl}/jumlahrwkumuh`).then((res) => res.json()),
-          fetch(`${baseUrl}/rwimplementasi`).then((res) => res.json()),
-          fetch(`${baseUrl}/jumlahkegiatancip`).then((res) => res.json()),
-          fetch(`${baseUrl}/jumlahanggaran`).then((res) => res.json()),
+          fetch(`${baseUrl}/jumlahrwkumuh`, { credentials: 'include' }).then((res) => res.json()),
+          fetch(`${baseUrl}/rwimplementasi`, { credentials: 'include' }).then((res) => res.json()),
+          fetch(`${baseUrl}/jumlahkegiatancip`, { credentials: 'include' }).then((res) => res.json()),
+          fetch(`${baseUrl}/jumlahanggaran`, { credentials: 'include' }).then((res) => res.json()),
         ]);
 
         setSummary({

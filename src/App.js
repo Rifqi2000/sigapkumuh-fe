@@ -5,6 +5,8 @@ import DonutChartCard from './components/DonutChartCard';
 import TableDetailCard from './components/TableDetailCard';
 import AllDataTable from './components/AllDataTable';
 import FilterPanel from './components/FilterPanel';
+import UserInfo from './components/UserInfo';
+import CookieDebugger from './components/CookieDebugger';
 import './App.css';
 import 'animate.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -72,7 +74,9 @@ function App() {
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await fetch(`${baseUrl}/filter-options`);
+        const response = await fetch(`${baseUrl}/filter-options`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const result = await response.json();
 
         const sortAsc = (arr) => [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
@@ -115,7 +119,9 @@ function App() {
     const fetchBarChartData = async () => {
       try {
         const params = new URLSearchParams(filters);
-        const response = await fetch(`${baseUrl}/chart-bar?${params}`);
+        const response = await fetch(`${baseUrl}/chart-bar?${params}`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const result = await response.json();
 
         setBarChartData(Array.isArray(result) ? result : []);
@@ -146,7 +152,9 @@ function App() {
           kelurahan: filters.kelurahan,
           rw: filters.rw,
         });
-        const res = await fetch(`${baseUrl}/donut-cap-chart?${params}`);
+        const res = await fetch(`${baseUrl}/donut-cap-chart?${params}`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const data = await res.json();
         setDonutCapData(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -166,7 +174,9 @@ function App() {
           kelurahan: filters.kelurahan,
           rw: filters.rw,
         });
-        const res = await fetch(`${baseUrl}/donut-cip-chart?${params}`);
+        const res = await fetch(`${baseUrl}/donut-cip-chart?${params}`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const data = await res.json();
         setDonutCipData(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -179,7 +189,9 @@ function App() {
   useEffect(() => {
     const fetchTableCIP = async () => {
       try {
-        const res = await fetch(`${baseUrl}/table-cip`);
+        const res = await fetch(`${baseUrl}/table-cip`, {
+          credentials: 'include', // Include cookies for authentication
+        });
         const data = await res.json();
         setTableCipData(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -203,6 +215,8 @@ function App() {
 
   return (
     <div className="App" style={{ backgroundColor: '#83DBF6', minHeight: '100vh', color: '#fff' }}>
+      <UserInfo />
+      <CookieDebugger />
       <HeroSection summary={summaryData} onScrollClick={scrollToContent} />
 
       <div ref={contentRef} className="container py-4">
