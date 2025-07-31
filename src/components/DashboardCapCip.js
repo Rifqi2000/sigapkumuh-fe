@@ -1,12 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement } from 'chart.js';
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
 
 import './css/DashboardCapCip.css';
 import TableDetailCard from '../components/TableDetailCard';
 import AllDataTable from '../components/AllDataTable';
 import FilterPanel from '../components/FilterPanel';
 import BarChartCard from '../components/BarChartCard';
-import DonutChartCard from '../components/DonutChartCard'; // ✅ Tambahkan
+import DonutChartCard from '../components/DonutChartCard';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement);
 
@@ -31,6 +39,8 @@ const DashboardCAPCIP = () => {
   });
 
   const [chartData, setChartData] = useState([]);
+  const [donutCipData, setDonutCipData] = useState([]);
+  const [tableCipData, setTableCipData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
 
   const detailCIPRef = useRef(null);
@@ -112,6 +122,41 @@ const DashboardCAPCIP = () => {
     selectedKelurahan,
     selectedRW,
   ]);
+
+  useEffect(() => {
+    const fetchDonutCIP = async () => {
+      try {
+        const params = new URLSearchParams({
+          tahun: selectedTahunCIP,
+          wilayah: selectedWilayah,
+          kecamatan: selectedKecamatan,
+          kelurahan: selectedKelurahan,
+          rw: selectedRW,
+        });
+        const res = await fetch(`${baseUrl}/donut-cip-chart?${params}`);
+        const data = await res.json();
+        setDonutCipData(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Gagal mengambil data donut CIP:', err);
+      }
+    };
+
+    fetchDonutCIP();
+  }, [selectedTahunCIP, selectedWilayah, selectedKecamatan, selectedKelurahan, selectedRW]);
+
+  useEffect(() => {
+    const fetchTableCIP = async () => {
+      try {
+        const res = await fetch(`${baseUrl}/table-cip`);
+        const data = await res.json();
+        setTableCipData(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Gagal mengambil data Table CIP:', err);
+      }
+    };
+
+    fetchTableCIP();
+  }, []);
 
   const getFilteredOptions = () => {
     const { data } = filterOptions;
@@ -206,16 +251,20 @@ const DashboardCAPCIP = () => {
         <div className="col-md-6">
           <div className="card card-detail-cip w-100 h-100">
             <div className="card-header text-center fw-bold">Detail CIP</div>
-            <TableDetailCard filters={filters} data={[]} />
+            <TableDetailCard filters={filters} data={tableCipData} />
           </div>
         </div>
 
         <div className="col-md-6">
-          <DonutChartCard title="Persentase Anggaran CIP" filters={filters} />
+          <DonutChartCard
+            title="Persentase Anggaran CIP"
+            filters={filters}
+            data={donutCipData}
+          />
         </div>
 
         <div className="col-12 mt-4">
-          <AllDataTable data={[]} filters={filters} />
+          <AllDataTable data={tableCipData} filters={filters} />
         </div>
       </div>
     </div>
