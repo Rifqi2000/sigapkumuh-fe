@@ -12,7 +12,7 @@
 /* Wrapper dengan ukuran maksimum dan rasio 1:1 */
 .donut-wrapper {
   width: 100%;
-  max-width: 430px;
+  max-width: 495px; /* Ukuran lebih kecil agar label tidak tertimpa */
   aspect-ratio: 1 / 1;
   position: relative;
 }
@@ -23,7 +23,7 @@
   height: 100% !important;
 }
 
-/* === Label Tengah === */
+/* === Label Tengah (opsional jika digunakan) === */
 .donut-total {
   position: absolute;
   top: 50%;
@@ -37,15 +37,13 @@
 
 .donut-total h3 {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 700;
-  margin-left: -215px;
 }
 
 .donut-total p {
   margin: 0;
-  font-size: 0.5rem;
-  margin-left: -215px;
+  font-size: 0.75rem;
 }
 
 /* === Chart Legend Styling (Chart.js auto generates this) === */
@@ -81,15 +79,15 @@
 /* Tablet (≤ 992px) */
 @media (max-width: 992px) {
   .donut-wrapper {
-    max-width: 360px;
+    max-width: 300px;
   }
 
   .donut-total h3 {
-    font-size: 0.6rem;
+    font-size: 0.85rem;
   }
 
   .donut-total p {
-    font-size: 0.4rem;
+    font-size: 0.65rem;
   }
 
   .chartjs-legend {
@@ -101,18 +99,15 @@
 /* Smartphone (≤ 576px) */
 @media (max-width: 576px) {
   .donut-wrapper {
-    max-width: 300px;
+    max-width: 260px;
   }
 
   .donut-total h3 {
-    font-size: 1rem;
-    margin-left: 3px;
-    margin-top: -30px;
+    font-size: 0.9rem;
   }
 
   .donut-total p {
-    font-size: 0.75rem;
-    margin-left: 3px;
+    font-size: 0.7rem;
   }
 
   .chartjs-legend {

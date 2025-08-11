@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement } from 'chart.js';
 
 import './css/DashboardCapCip.css';
 import TableDetailCard from '../components/TableDetailCard';
@@ -27,6 +19,7 @@ const DashboardCAPCIP = () => {
   const [selectedKecamatan, setSelectedKecamatan] = useState('Semua');
   const [selectedKelurahan, setSelectedKelurahan] = useState('Semua');
   const [selectedRW, setSelectedRW] = useState('Semua');
+  const [selectedKegiatan, setSelectedKegiatan] = useState('Semua'); // ⬅️ NEW
 
   const [filterOptions, setFilterOptions] = useState({
     tahun_cap: [],
@@ -35,12 +28,11 @@ const DashboardCAPCIP = () => {
     kecamatan: [],
     kelurahan: [],
     rw: [],
+    kegiatan: [], // ⬅️ NEW
     data: [],
   });
 
   const [chartData, setChartData] = useState([]);
-  const [donutCipData, setDonutCipData] = useState([]);
-  const [tableCipData, setTableCipData] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
 
   const detailCIPRef = useRef(null);
@@ -56,6 +48,7 @@ const DashboardCAPCIP = () => {
     kecamatan: selectedKecamatan,
     kelurahan: selectedKelurahan,
     rw: selectedRW,
+    kegiatan: selectedKegiatan !== 'Semua' ? selectedKegiatan : '', // ⬅️ NEW
   };
 
   const getLevelXAxis = () => {
@@ -73,9 +66,10 @@ const DashboardCAPCIP = () => {
 
         const sortAsc = (arr) => [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
 
-        result.tahun_cap = sortAsc(result.tahun_cap.map(String));
-        result.tahun_cip = sortAsc(result.tahun_cip.map(String));
-        result.wilayah = sortAsc(result.wilayah);
+        result.tahun_cap = sortAsc((result.tahun_cap || []).map(String));
+        result.tahun_cip = sortAsc((result.tahun_cip || []).map(String));
+        result.wilayah = sortAsc(result.wilayah || []);
+        result.kegiatan = sortAsc((result.kegiatan || []).filter(Boolean)); // ⬅️ NEW
 
         setFilterOptions(result);
       } catch (error) {
@@ -100,12 +94,13 @@ const DashboardCAPCIP = () => {
           kecamatan: selectedKecamatan,
           kelurahan: selectedKelurahan,
           rw: selectedRW,
+          kegiatan: selectedKegiatan !== 'Semua' ? selectedKegiatan : '', // ⬅️ NEW
           level_x_axis,
         }).toString();
 
         const res = await fetch(`${baseUrl}/chart-bar?${query}`);
         const data = await res.json();
-        setChartData(data);
+        setChartData(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Gagal mengambil data chart bar:', err);
       } finally {
@@ -121,42 +116,8 @@ const DashboardCAPCIP = () => {
     selectedKecamatan,
     selectedKelurahan,
     selectedRW,
+    selectedKegiatan, // ⬅️ NEW
   ]);
-
-  useEffect(() => {
-    const fetchDonutCIP = async () => {
-      try {
-        const params = new URLSearchParams({
-          tahun: selectedTahunCIP,
-          wilayah: selectedWilayah,
-          kecamatan: selectedKecamatan,
-          kelurahan: selectedKelurahan,
-          rw: selectedRW,
-        });
-        const res = await fetch(`${baseUrl}/donut-cip-chart?${params}`);
-        const data = await res.json();
-        setDonutCipData(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error('Gagal mengambil data donut CIP:', err);
-      }
-    };
-
-    fetchDonutCIP();
-  }, [selectedTahunCIP, selectedWilayah, selectedKecamatan, selectedKelurahan, selectedRW]);
-
-  useEffect(() => {
-    const fetchTableCIP = async () => {
-      try {
-        const res = await fetch(`${baseUrl}/table-cip`);
-        const data = await res.json();
-        setTableCipData(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error('Gagal mengambil data Table CIP:', err);
-      }
-    };
-
-    fetchTableCIP();
-  }, []);
 
   const getFilteredOptions = () => {
     const { data } = filterOptions;
@@ -203,6 +164,7 @@ const DashboardCAPCIP = () => {
         selectedKecamatan={selectedKecamatan}
         selectedKelurahan={selectedKelurahan}
         selectedRW={selectedRW}
+        selectedKegiatan={selectedKegiatan}                              {/* ⬅️ NEW */}
         onChangeTahunCAP={(e) => setSelectedTahunCAP(e.target.value)}
         onChangeTahunCIP={(e) => setSelectedTahunCIP(e.target.value)}
         onChangeWilayah={(e) => {
@@ -221,6 +183,7 @@ const DashboardCAPCIP = () => {
           setSelectedRW('Semua');
         }}
         onChangeRW={(e) => setSelectedRW(e.target.value)}
+        onChangeKegiatan={(e) => setSelectedKegiatan(e.target.value)}     {/* ⬅️ NEW */}
         onReset={() => {
           setSelectedTahunCAP('Semua');
           setSelectedTahunCIP('Semua');
@@ -228,6 +191,7 @@ const DashboardCAPCIP = () => {
           setSelectedKecamatan('Semua');
           setSelectedKelurahan('Semua');
           setSelectedRW('Semua');
+          setSelectedKegiatan('Semua');                                   {/* ⬅️ NEW */}
         }}
         filterOptions={filterOptions}
         filteredOptions={{ kecamatanOptions, kelurahanOptions, rwOptions }}
@@ -237,7 +201,7 @@ const DashboardCAPCIP = () => {
         <div className="col-md-6">
           <BarChartCard
             title="CAP dan CIP berdasarkan RW Kumuh"
-            filters={filters}
+            filters={{ ...filters, level_x_axis: getLevelXAxis() }}
             data={chartData}
             loading={loadingChart}
           />
@@ -251,20 +215,16 @@ const DashboardCAPCIP = () => {
         <div className="col-md-6">
           <div className="card card-detail-cip w-100 h-100">
             <div className="card-header text-center fw-bold">Detail CIP</div>
-            <TableDetailCard filters={filters} data={tableCipData} />
+            <TableDetailCard filters={filters} data={[]} />
           </div>
         </div>
 
         <div className="col-md-6">
-          <DonutChartCard
-            title="Persentase Anggaran CIP"
-            filters={filters}
-            data={donutCipData}
-          />
+          <DonutChartCard title="Persentase Anggaran CIP" filters={filters} />
         </div>
 
         <div className="col-12 mt-4">
-          <AllDataTable data={tableCipData} filters={filters} />
+          <AllDataTable data={[]} filters={filters} />
         </div>
       </div>
     </div>

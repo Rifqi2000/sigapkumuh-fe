@@ -1,3 +1,4 @@
+/* Animasi */
 @keyframes zoomIn {
   from {
     opacity: 0;
@@ -9,224 +10,255 @@
   }
 }
 
-/* Animasi membesar dan mengecil */
 @keyframes pulseZoom {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
-/* HeroSection.css */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+/* Container utama */
 .hero-wrapper {
-  background-color: #83DBF6;;
-  padding-top: 30px; /* semula 20px atau lebih */
+  background-color: #83DBF6;
+  padding-top: 70px; /* 🔧 Tambahkan jarak agar turun ke bawah */
   padding-bottom: 0;
 }
-
 
 .hero-section {
   background: #f7f7f7;
   border-radius: 20px;
-  padding: 40px 50px 40px; /* ↓ kecilkan padding atas (semula 60px) */
+  padding: 30px;
   max-width: 1400px;
   margin: 0 auto;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-
+/* Konten utama */
 .hero-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 30px; /* jika pakai gap besar, kecilkan */
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
+/* Logo baris */
 .logo-row {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  gap: 32px;
-  margin-bottom: 20px;
+  gap: 24px;
   flex-wrap: wrap;
+  margin-bottom: 20px;
   animation: zoomIn 0.8s ease forwards;
 }
-
 .logo-row img {
-  height: 60px;
+  height: 48px;
   object-fit: contain;
 }
 
-
+/* Area teks */
 .text-area {
   flex: 1 1 500px;
-  padding: 20px;
+  padding: 10px;
   text-align: left;
 }
-
-.logo-group {
-  height: 60px;
-  margin-bottom: 20px;
-}
-
 .hero-title {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #000;
-  margin-bottom: 10px;
-  text-align: left;
+  margin-bottom: 8px;
 }
-
 .hero-desc {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #333;
-  margin-bottom: 30px;
-  line-height: 1.6;
-  text-align: left;
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
 
+/* Ringkasan Kartu */
 .card-summary {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+  flex-direction: column;
+  gap: 12px;
 }
-
-.hero-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
+.total-card {
+  width: 100%;
+  background-color: #6a61a3;
   border-radius: 12px;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   color: white;
-  min-width: 200px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
-  flex: 1 1 200px;
-  text-align: right;
 }
 
-.hero-card .icon-area {
-  font-size: 2rem;
-  margin-right: 10px;
+/* Grid wilayah */
+.wilayah-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
 }
 
-.hero-value {
-  font-size: 1.5rem;
+/* Kartu wilayah */
+.wilayah-card {
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.wilayah-card:hover {
+  transform: scale(1.02);
+}
+.wilayah-nama {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.wilayah-jumlah {
+  font-size: 1.2rem;
   font-weight: bold;
 }
+.wilayah-jumlah span {
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-left: 4px;
+}
 
+/* Warna wilayah */
+.purple-light { background-color: #b3a4e0; }
+.blue-light { background-color: #5fb7dd; }
+.red-dark { background-color: #ab2a47; }
+.green-light { background-color: #8ccf94; }
+.teal-light { background-color: #17a2b8; }
+.teal-dark { background-color: #005f66; }
+.gray { background-color: #6c757d; }
+
+/* Area ikon */
+.hero-card .icon-area {
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+.hero-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
 .hero-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
-.purple {
-  background-color: #585a9d;
-}
-
-.blue {
-  background-color: #0b8db5;
-}
-
-.red {
-  background-color: #e15b55;
-}
-
-.green {
-  background-color: #3f9c7e;
-}
-
+/* Gambar kanan / ilustrasi */
 .illustration-wrapper {
-  flex: 1 1 350px;
+  flex: 1 1 450px;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 10px;
+  min-height: 300px;
 }
-
-/* @keyframes zoomIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-} */
-
 .hero-illustration {
   width: 100%;
-  max-width: 420px; /* Sesuaikan besar gambarnya */
+  max-width: 420px;
   height: auto;
   animation: zoomIn 0.8s ease-out forwards;
-
 }
 
-
+/* Panah scroll */
 .scroll-icon {
   font-size: 2rem;
   text-align: center;
-  margin-top: 30px;
+  margin-top: 10px;
   animation: bounce 1.5s infinite;
   color: #000;
 }
-
 .scroll-icon-wrapper {
   text-align: center;
-  margin-top: -30px;          /* lebih naik dari sebelumnya */
-  background-color: #83DBF6;;
-  padding-bottom: 30px;       /* sebelumnya 50–60px */
+  margin-top: 20px;
+  background-color: #83DBF6;
+  padding-bottom: 20px;
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
 }
-
-
 .scroll-icon img {
-  width: 40px;
+  width: 36px;
   height: auto;
   cursor: pointer;
   animation: bounce 1.5s infinite;
   filter: brightness(10);
 }
 
-
-.animate__delay-1-5s {
-  animation-delay: 1.5s;
+/* Tabel Detail RW */
+.rw-detail-table {
+  background: #fff;
+  margin: 20px auto;
+  padding: 30px;
+  border-radius: 12px;
+  max-width: 1400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: #000;
+  min-height: 400px; /* ✅ Agar card tidak berubah ukuran */
 }
-.animate__delay-2-5s {
-  animation-delay: 2.5s;
+.rw-detail-table h4 {
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.rw-detail-table .table-responsive {
+  margin-top: 15px;
+  min-height: 250px; /* ✅ Tambahan agar area tabel tetap stabil */
+}
+.rw-detail-table table {
+  font-size: 0.9rem;
+}
+.rw-detail-table .text-muted {
+  color: #666 !important;
 }
 
+/* Delay tambahan animasi */
+.animate__delay-1-5s { animation-delay: 1.5s; }
+.animate__delay-2-5s { animation-delay: 2.5s; }
 
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10px);
-  }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 60px 20px;
-    min-height: auto;
+    padding: 30px 20px;
   }
 
-  .scroll-icon-wrapper {
-    padding-bottom: 40px;
+  .hero-content {
+    flex-direction: column;
   }
+
   .logo-row {
-    gap: 20px;
-    flex-direction: row;
+    gap: 16px;
     flex-wrap: wrap;
   }
 
-  .logo-row img {
-    height: 50px;
+  .hero-illustration {
+    max-width: 100%;
+  }
+
+  .illustration-wrapper {
+    order: -1;
+    padding-bottom: 20px;
+  }
+
+  .total-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .wilayah-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rw-detail-table {
+    padding: 20px;
   }
 }

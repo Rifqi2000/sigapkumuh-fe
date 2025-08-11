@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -7,145 +7,135 @@ import {
   LinearScale,
   Tooltip,
   Legend,
-  PointElement,
-  LineElement,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
-ChartJS.register(
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement
-);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const BarChartCard = ({ title, filters, data, loading }) => {
-  const getProcessedData = () => {
-    if (!Array.isArray(data)) return {
-      labels: [],
-      jumlahRwKumuh: [],
-      jumlahCAP: [],
-      jumlahCIP: [],
-      anggaranCIP: [],
-    };
+  const [authStatus, setAuthStatus] = useState(null);
 
-    const labels = [];
-    const jumlahRwKumuh = [];
-    const jumlahCAP = [];
-    const jumlahCIP = [];
-    const anggaranCIP = [];
+  useEffect(() => {
+    const cookies = document.cookie;
+    const hasAccessToken = cookies.includes('accessToken');
+    const hasRefreshToken = cookies.includes('refreshToken');
+    const userData = localStorage.getItem('userData');
 
-    data.forEach((item) => {
-      labels.push(item.label);
-      jumlahRwKumuh.push(item.jumlah_rw_kumuh);
-      jumlahCAP.push(item.jumlah_rw_cap);
-      jumlahCIP.push(item.jumlah_rw_cip);
-      anggaranCIP.push(item.total_anggaran_cip);
-    });
+    if (hasAccessToken && hasRefreshToken) {
+      setAuthStatus('admin');
+    } else if (userData) {
+      setAuthStatus('external');
+    } else {
+      setAuthStatus('public');
+    }
+  }, []);
 
-    return {
-      labels,
-      jumlahRwKumuh,
-      jumlahCAP,
-      jumlahCIP,
-      anggaranCIP,
-    };
-  };
-
-  const { labels, jumlahRwKumuh, jumlahCAP, jumlahCIP, anggaranCIP } = getProcessedData();
+  // Ambil semua label dan data langsung
+  const labels = data.map((item) => item.label || 'Tidak Diketahui');
+  const jumlahCAP = data.map((item) => item.jumlah_cap ?? 0);
+  const jumlahCIP = data.map((item) => item.jumlah_cip ?? 0);
 
   const dataChart = {
     labels,
     datasets: [
       {
-        type: 'bar',
-        label: 'Jumlah RW Kumuh',
-        data: jumlahRwKumuh,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        maxBarThickness: 60,
-      },
-      {
-        type: 'bar',
-        label: 'Jumlah CAP',
-        data: jumlahCAP,
-        backgroundColor: 'rgba(255, 206, 86, 0.6)',
-        maxBarThickness: 60,
-      },
-      {
-        type: 'bar',
-        label: 'Jumlah CIP',
+        label: 'CIP',
         data: jumlahCIP,
-        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-        maxBarThickness: 60,
+        backgroundColor: 'rgba(54, 235, 235, 0.6)',
+        stack: 'stack1',
+        barThickness: 24,
       },
       {
-        type: 'line',
-        label: 'Jumlah Anggaran CIP',
-        data: anggaranCIP,
-        yAxisID: 'y1',
-        xAxisID: 'x1',
-        borderColor: 'rgba(153, 102, 255, 1)',
-        backgroundColor: 'rgba(153, 102, 255, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
-        pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+        label: 'CAP',
+        data: jumlahCAP,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        stack: 'stack1',
+        barThickness: 24,
       },
     ],
   };
 
+  const MAX_LABEL_CHARS = 15; // jumlah karakter per baris sebelum wrap
+
   const options = {
+    indexAxis: 'y',
     responsive: true,
     maintainAspectRatio: false,
     layout: {
-      padding: { top: 10, right: 10, bottom: 20, left: 10 },
+      padding: 10,
     },
     plugins: {
       legend: {
         position: 'top',
         labels: {
-          boxWidth: 20,
-          padding: 20,
-        },
-      },
-    },
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Jumlah' },
-        ticks: { padding: 10 },
-        grid: { drawTicks: true },
-      },
-      y1: {
-        beginAtZero: true,
-        position: 'right',
-        title: { display: true, text: 'Anggaran (Rp)' },
-        ticks: {
-          callback: function (value) {
-            return 'Rp ' + (value / 1_000_000_000).toFixed(0) + 'M';
+          font: {
+            size: 12,
           },
         },
-        grid: { drawOnChartArea: false },
       },
-      x: {
-        type: 'category',
-        offset: true,
-        ticks: {
-          autoSkip: false,
-          padding: 10,
+      tooltip: {
+        enabled: true,
+        mode: 'index',
+        intersect: false,
+        callbacks: {
+          title: (tooltipItems) => {
+            // Tooltip menampilkan label asli lengkap
+            const index = tooltipItems[0].dataIndex;
+            return labels[index];
+          },
         },
       },
-      x1: {
-        type: 'category',
-        offset: true,
+      datalabels: {
         display: false,
-        labels: labels.map((_, i) => i),
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+        beginAtZero: true,
+        grid: { display: false },
+        title: {
+          display: true,
+          text: 'Jumlah Kegiatan',
+        },
+        ticks: {
+          precision: 0,
+        },
+      },
+      y: {
+        stacked: true,
+        grid: { display: false },
+        ticks: {
+          autoSkip: false,
+          font: {
+            size: 12,
+          },
+          callback: function (value, index, ticks) {
+            const fullLabel = this.getLabelForValue(value);
+            const words = fullLabel.split(' ');
+            let lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+              if ((currentLine + ' ' + words[i]).length <= MAX_LABEL_CHARS) {
+                currentLine += ' ' + words[i];
+              } else {
+                lines.push(currentLine);
+                currentLine = words[i];
+              }
+            }
+            lines.push(currentLine);
+
+            // Tambahkan ellipsis jika terlalu panjang
+            const totalLength = lines.join(' ').length;
+            if (totalLength > MAX_LABEL_CHARS * 2) {
+              lines = lines.slice(0, 2); // maksimal 2 baris
+              lines[1] = lines[1].slice(0, MAX_LABEL_CHARS - 3) + '...';
+            }
+
+            return lines;
+          },
+        },
       },
     },
   };
@@ -154,9 +144,17 @@ const BarChartCard = ({ title, filters, data, loading }) => {
     <div className="card shadow-sm border-0">
       <div className="card-header bg-light text-center fw-bold">{title}</div>
       <div className="card-body">
-        <div className="chart-container" style={{ height: '430px', width: '100%' }}>
+        <div
+          className="chart-container"
+          style={{
+            height: `${Math.max(labels.length * 60, 150)}px`, // ruang vertikal per bar
+            width: '100%',
+          }}
+        >
           {loading ? (
-            <div className="d-flex justify-content-center align-items-center h-100">Loading...</div>
+            <div className="d-flex justify-content-center align-items-center h-100">
+              Loading...
+            </div>
           ) : (
             <Chart type="bar" data={dataChart} options={options} />
           )}
