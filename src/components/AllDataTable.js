@@ -103,7 +103,13 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     return sorted;
   }, [data, filters, orderIndex]);
 
-  const getSKPD = (wilayah) => (wilayah ? `Sudin ${wilayah}` : '-');
+  // === SKPD dari backend (fallback ke Sudin {wilayah} bila kosong) ===
+  const getSKPD = (row) => {
+    const sk = (row?.skpd ?? '').toString().trim();
+    if (sk) return sk;
+    const wil = (row?.nama_kabkota ?? '').toString().trim();
+    return wil ? `Sudin ${wil}` : '-';
+  };
 
   const columns = useMemo(() => ([
     { title: 'TAHUN', data: 'tahun' },
@@ -116,7 +122,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     { title: 'VOLUME', data: 'volume' },
     { title: 'SATUAN', data: 'satuan' },
     { title: 'ANGGARAN (Rp)', data: 'anggaran' },
-    { title: 'SKPD', data: null, isSkpd: true },
+    { title: 'SKPD', data: 'skpd', isSkpd: true }, // data dari backend
   ]), []);
 
   // init DataTable — hanya admin
@@ -156,7 +162,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
               });
             }
             if (col.title === 'SKPD' || col.isSkpd) {
-              return getSKPD(row?.nama_kabkota || '');
+              return getSKPD(row); // <-- ambil dari backend, fallback Sudin {wilayah}
             }
             return (data ?? '-') === '' ? '-' : data ?? '-';
           },

@@ -83,17 +83,20 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
     });
   }, [data, norm]);
 
-  // 2) Grouping per (kegiatan, tipe_bahan, wilayah)
+  // 2) Grouping per (kegiatan, tipe_bahan, SKPD)
   const grouped = useMemo(() => {
     const groupedMap = new Map();
     filtered.forEach((item) => {
       const wilayah = item.nama_kabkota || '-';
-      const key = `${normalize(item.nama_kegiatan)}||${normalize(item.tipe_bahan)}||${wilayah}`;
+      // Ambil dari backend; fallback ke "Sudin {wilayah}" bila kosong
+      const skpdVal = normalize(item.skpd) || (wilayah && wilayah !== '-' ? `Sudin ${wilayah}` : '-');
+
+      const key = `${normalize(item.nama_kegiatan)}||${normalize(item.tipe_bahan)}||${skpdVal}`;
       if (!groupedMap.has(key)) {
         groupedMap.set(key, {
           nama_kegiatan: item.nama_kegiatan,
           tipe_bahan: item.tipe_bahan,
-          wilayah,
+          skpd: skpdVal,
           volume: Number(item.volume) || 0,
           satuan: item.satuan || '-',
           anggaran: Number(item.anggaran) || 0,
@@ -118,12 +121,12 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
       return acc;
     }, {});
 
-    // sort helper di dalam satu kegiatan
+    // sort helper di dalam satu kegiatan (tipe_bahan -> skpd)
     const sortInside = (arr) =>
       arr.sort((a, b) => {
         const t = (a.tipe_bahan || '').localeCompare(b.tipe_bahan || '', 'id');
         if (t !== 0) return t;
-        return (a.wilayah || '').localeCompare(b.wilayah || '', 'id');
+        return (a.skpd || '').localeCompare(b.skpd || '', 'id');
       });
 
     const out = [];
@@ -137,7 +140,7 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
         out.push({
           nama_kegiatan: nama,
           tipe_bahan: '-',
-          wilayah: '-',
+          skpd: '-',
           volume: 0,
           satuan: '-',
           anggaran: 0,
@@ -171,8 +174,6 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
 
   const handlePrevPage = () => setCurrentPage((p) => Math.max(p - 1, 1));
   const handleNextPage = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
-
-  const getSKPD = (wilayah) => (wilayah && wilayah !== '-' ? `Sudin ${wilayah}` : '-');
 
   return (
     <div className="card">
@@ -210,7 +211,7 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
                         })}
                       </td>
                     )}
-                    <td>{getSKPD(item.wilayah)}</td>
+                    <td>{item.skpd || '-'}</td>
                   </tr>
                 ))
               ) : (
