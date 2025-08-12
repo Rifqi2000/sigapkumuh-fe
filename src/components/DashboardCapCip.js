@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcElement } from 'chart.js';
 
 import './css/DashboardCapCip.css';
@@ -13,13 +13,14 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend, ArcEle
 const baseUrl = process.env.REACT_APP_API_URL;
 
 const DashboardCAPCIP = () => {
-  const [selectedTahunCAP, setSelectedTahunCAP] = useState('Semua');
-  const [selectedTahunCIP, setSelectedTahunCIP] = useState('Semua');
-  const [selectedWilayah, setSelectedWilayah] = useState('Semua');
-  const [selectedKecamatan, setSelectedKecamatan] = useState('Semua');
-  const [selectedKelurahan, setSelectedKelurahan] = useState('Semua');
-  const [selectedRW, setSelectedRW] = useState('Semua');
-  const [selectedKegiatan, setSelectedKegiatan] = useState('Semua'); // ⬅️ NEW
+  // === Semua filter pakai array ===
+  const [selectedTahunCAP, setSelectedTahunCAP] = useState([]);
+  const [selectedTahunCIP, setSelectedTahunCIP] = useState([]);
+  const [selectedWilayah, setSelectedWilayah] = useState([]);
+  const [selectedKecamatan, setSelectedKecamatan] = useState([]);
+  const [selectedKelurahan, setSelectedKelurahan] = useState([]);
+  const [selectedRW, setSelectedRW] = useState([]);
+  const [selectedKegiatan, setSelectedKegiatan] = useState([]);
 
   const [filterOptions, setFilterOptions] = useState({
     tahun_cap: [],
@@ -28,7 +29,7 @@ const DashboardCAPCIP = () => {
     kecamatan: [],
     kelurahan: [],
     rw: [],
-    kegiatan: [], // ⬅️ NEW
+    kegiatan: [],
     data: [],
   });
 
@@ -36,69 +37,93 @@ const DashboardCAPCIP = () => {
   const [loadingChart, setLoadingChart] = useState(true);
 
   const detailCIPRef = useRef(null);
+  const scrollToDetail = () => detailCIPRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-  const scrollToDetail = () => {
-    detailCIPRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // ===== Helpers =====
+  const buildSearchParams = (obj) => {
+    const sp = new URLSearchParams();
+    Object.entries(obj).forEach(([k, v]) => {
+      if (Array.isArray(v)) {
+        v.forEach((item) => {
+          if (item !== undefined && item !== null && `${item}`.trim() !== '') sp.append(k, item);
+        });
+      } else if (v !== undefined && v !== null && `${v}`.trim() !== '') {
+        sp.append(k, v);
+      }
+    });
+    return sp;
   };
 
-  const filters = {
-    tahun_cap: selectedTahunCAP,
-    tahun_cip: selectedTahunCIP,
-    wilayah: selectedWilayah,
-    kecamatan: selectedKecamatan,
-    kelurahan: selectedKelurahan,
-    rw: selectedRW,
-    kegiatan: selectedKegiatan !== 'Semua' ? selectedKegiatan : '', // ⬅️ NEW
-  };
-
-  const getLevelXAxis = () => {
-    if (selectedWilayah !== 'Semua' && selectedKecamatan === 'Semua') return 'kecamatan';
-    if (selectedKecamatan !== 'Semua' && selectedKelurahan === 'Semua') return 'kelurahan';
-    if (selectedKelurahan !== 'Semua') return 'rw';
+  // ✅ Perbaikan: jika hanya wilayah yang dipilih, group by "wilayah"
+  const getLevelXAxis = useMemo(() => {
+    if (selectedRW.length) return 'rw';
+    if (selectedKelurahan.length) return 'rw';
+    if (selectedKecamatan.length) return 'kelurahan';
+    if (selectedWilayah.length) return 'wilayah'; // <-- FIX di sini
     return 'wilayah';
-  };
+  }, [selectedWilayah, selectedKecamatan, selectedKelurahan, selectedRW]);
 
+  const filters = useMemo(
+    () => ({
+      tahun_cap: selectedTahunCAP,   // array
+      tahun_cip: selectedTahunCIP,   // array
+      wilayah: selectedWilayah,
+      kecamatan: selectedKecamatan,
+      kelurahan: selectedKelurahan,
+      rw: selectedRW,
+      kegiatan: selectedKegiatan,
+    }),
+    [
+      selectedTahunCAP,
+      selectedTahunCIP,
+      selectedWilayah,
+      selectedKecamatan,
+      selectedKelurahan,
+      selectedRW,
+      selectedKegiatan,
+    ]
+  );
+
+  // ===== Fetch filter options =====
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
         const response = await fetch(`${baseUrl}/filter-options`);
         const result = await response.json();
-
-        const sortAsc = (arr) => [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+        const sortAsc = (arr) =>
+          [...arr].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
 
         result.tahun_cap = sortAsc((result.tahun_cap || []).map(String));
         result.tahun_cip = sortAsc((result.tahun_cip || []).map(String));
         result.wilayah = sortAsc(result.wilayah || []);
-        result.kegiatan = sortAsc((result.kegiatan || []).filter(Boolean)); // ⬅️ NEW
+        result.kegiatan = sortAsc((result.kegiatan || []).filter(Boolean));
 
         setFilterOptions(result);
       } catch (error) {
         console.error('Gagal mengambil filter:', error);
       }
     };
-
     fetchFilterOptions();
   }, []);
 
+  // ===== Fetch bar chart (array-aware) =====
   useEffect(() => {
     const fetchBarChartData = async () => {
       try {
         setLoadingChart(true);
 
-        const level_x_axis = getLevelXAxis();
+        const params = buildSearchParams({
+          tahun_cap: filters.tahun_cap,
+          tahun_cip: filters.tahun_cip,
+          wilayah: filters.wilayah,
+          kecamatan: filters.kecamatan,
+          kelurahan: filters.kelurahan,
+          rw: filters.rw,
+          kegiatan: filters.kegiatan,
+          level_x_axis: getLevelXAxis,
+        });
 
-        const query = new URLSearchParams({
-          tahun_cap: selectedTahunCAP,
-          tahun_cip: selectedTahunCIP,
-          wilayah: selectedWilayah,
-          kecamatan: selectedKecamatan,
-          kelurahan: selectedKelurahan,
-          rw: selectedRW,
-          kegiatan: selectedKegiatan !== 'Semua' ? selectedKegiatan : '', // ⬅️ NEW
-          level_x_axis,
-        }).toString();
-
-        const res = await fetch(`${baseUrl}/chart-bar?${query}`);
+        const res = await fetch(`${baseUrl}/chart-bar?${params.toString()}`);
         const data = await res.json();
         setChartData(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -109,46 +134,30 @@ const DashboardCAPCIP = () => {
     };
 
     fetchBarChartData();
-  }, [
-    selectedTahunCAP,
-    selectedTahunCIP,
-    selectedWilayah,
-    selectedKecamatan,
-    selectedKelurahan,
-    selectedRW,
-    selectedKegiatan, // ⬅️ NEW
-  ]);
+  }, [filters, getLevelXAxis]);
 
+  // ===== Dependent options (union) dari filterOptions.data =====
   const getFilteredOptions = () => {
-    const { data } = filterOptions;
-    const filterData = data || [];
+    const all = filterOptions.data || [];
+    const uniqSort = (arr) =>
+      [...new Set(arr.filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b, 'id', { numeric: true })
+      );
 
-    const kecamatanOptions = filterData
-      .filter((d) => !selectedWilayah || d.wilayah === selectedWilayah)
-      .map((d) => d.kecamatan)
-      .filter((val, i, arr) => arr.indexOf(val) === i)
-      .sort();
+    const byWil = selectedWilayah.length
+      ? all.filter((d) => selectedWilayah.includes(d.wilayah))
+      : all;
+    const kecamatanOptions = uniqSort(byWil.map((d) => d.kecamatan));
 
-    const kelurahanOptions = filterData
-      .filter(
-        (d) =>
-          (!selectedWilayah || d.wilayah === selectedWilayah) &&
-          (!selectedKecamatan || d.kecamatan === selectedKecamatan)
-      )
-      .map((d) => d.kelurahan)
-      .filter((val, i, arr) => arr.indexOf(val) === i)
-      .sort();
+    const byKec = selectedKecamatan.length
+      ? byWil.filter((d) => selectedKecamatan.includes(d.kecamatan))
+      : byWil;
+    const kelurahanOptions = uniqSort(byKec.map((d) => d.kelurahan));
 
-    const rwOptions = filterData
-      .filter(
-        (d) =>
-          (!selectedWilayah || d.wilayah === selectedWilayah) &&
-          (!selectedKecamatan || d.kecamatan === selectedKecamatan) &&
-          (!selectedKelurahan || d.kelurahan === selectedKelurahan)
-      )
-      .map((d) => d.rw)
-      .filter((val, i, arr) => arr.indexOf(val) === i)
-      .sort();
+    const byKel = selectedKelurahan.length
+      ? byKec.filter((d) => selectedKelurahan.includes(d.kelurahan))
+      : byKec;
+    const rwOptions = uniqSort(byKel.map((d) => d.rw));
 
     return { kecamatanOptions, kelurahanOptions, rwOptions };
   };
@@ -158,41 +167,48 @@ const DashboardCAPCIP = () => {
   return (
     <div id="main-content" className="container py-3">
       <FilterPanel
+        // Tahun (multi-select)
         selectedTahunCAP={selectedTahunCAP}
         selectedTahunCIP={selectedTahunCIP}
+        onChangeTahunCAP={(arr) => setSelectedTahunCAP(Array.isArray(arr) ? arr : [])}
+        onChangeTahunCIP={(arr) => setSelectedTahunCIP(Array.isArray(arr) ? arr : [])}
+
+        // MultiSelect (array)
         selectedWilayah={selectedWilayah}
         selectedKecamatan={selectedKecamatan}
         selectedKelurahan={selectedKelurahan}
         selectedRW={selectedRW}
-        selectedKegiatan={selectedKegiatan}                              {/* ⬅️ NEW */}
-        onChangeTahunCAP={(e) => setSelectedTahunCAP(e.target.value)}
-        onChangeTahunCIP={(e) => setSelectedTahunCIP(e.target.value)}
-        onChangeWilayah={(e) => {
-          setSelectedWilayah(e.target.value);
-          setSelectedKecamatan('Semua');
-          setSelectedKelurahan('Semua');
-          setSelectedRW('Semua');
+        selectedKegiatan={selectedKegiatan}
+
+        // Handler menerima array dari MultiSelectDropdown
+        onChangeWilayah={(arr) => {
+          setSelectedWilayah(arr || []);
+          setSelectedKecamatan([]);
+          setSelectedKelurahan([]);
+          setSelectedRW([]);
         }}
-        onChangeKecamatan={(e) => {
-          setSelectedKecamatan(e.target.value);
-          setSelectedKelurahan('Semua');
-          setSelectedRW('Semua');
+        onChangeKecamatan={(arr) => {
+          setSelectedKecamatan(arr || []);
+          setSelectedKelurahan([]);
+          setSelectedRW([]);
         }}
-        onChangeKelurahan={(e) => {
-          setSelectedKelurahan(e.target.value);
-          setSelectedRW('Semua');
+        onChangeKelurahan={(arr) => {
+          setSelectedKelurahan(arr || []);
+          setSelectedRW([]);
         }}
-        onChangeRW={(e) => setSelectedRW(e.target.value)}
-        onChangeKegiatan={(e) => setSelectedKegiatan(e.target.value)}     {/* ⬅️ NEW */}
+        onChangeRW={(arr) => setSelectedRW(arr || [])}
+        onChangeKegiatan={(arr) => setSelectedKegiatan(arr || [])}
+
         onReset={() => {
-          setSelectedTahunCAP('Semua');
-          setSelectedTahunCIP('Semua');
-          setSelectedWilayah('Semua');
-          setSelectedKecamatan('Semua');
-          setSelectedKelurahan('Semua');
-          setSelectedRW('Semua');
-          setSelectedKegiatan('Semua');                                   {/* ⬅️ NEW */}
+          setSelectedTahunCAP([]);
+          setSelectedTahunCIP([]);
+          setSelectedWilayah([]);
+          setSelectedKecamatan([]);
+          setSelectedKelurahan([]);
+          setSelectedRW([]);
+          setSelectedKegiatan([]);
         }}
+
         filterOptions={filterOptions}
         filteredOptions={{ kecamatanOptions, kelurahanOptions, rwOptions }}
       />
@@ -201,7 +217,7 @@ const DashboardCAPCIP = () => {
         <div className="col-md-6">
           <BarChartCard
             title="CAP dan CIP berdasarkan RW Kumuh"
-            filters={{ ...filters, level_x_axis: getLevelXAxis() }}
+            filters={{ ...filters, level_x_axis: getLevelXAxis }}
             data={chartData}
             loading={loadingChart}
           />

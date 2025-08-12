@@ -1,95 +1,235 @@
-// components/FilterPanel.js
-import React from 'react';
+import React, { useMemo } from "react";
+import MultiSelectDropdown from "./MultiSelectDropdown";
+
+const uniqSort = (arr) =>
+  [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
 
 const FilterPanel = ({
-  selectedTahunCAP,
-  selectedTahunCIP,
-  selectedWilayah,
-  selectedKecamatan,
-  selectedKelurahan,
-  selectedRW,
-  selectedKegiatan,          // ⬅️ NEW
+  // semua array
+  selectedTahunCAP = [],
+  selectedTahunCIP = [],
+  selectedWilayah = [],
+  selectedKecamatan = [],
+  selectedKelurahan = [],
+  selectedRW = [],
+  selectedKegiatan = [],
+
+  // handler terima array
   onChangeTahunCAP,
   onChangeTahunCIP,
   onChangeWilayah,
   onChangeKecamatan,
   onChangeKelurahan,
   onChangeRW,
-  onChangeKegiatan,          // ⬅️ NEW
+  onChangeKegiatan,
+
   onReset,
-  filterOptions,
-  filteredOptions,
+  filterOptions = {},
+  filteredOptions = {},
 }) => {
+  // helper agar kompatibel (kalau parent masih expect event-like, tinggal ganti jadi toEvent)
+  const call = (fn) => (arr) => fn && fn(Array.isArray(arr) ? arr : []);
+
+  const tahunCapOpts = filterOptions.tahun_cap || [];
+  const tahunCipOpts = filterOptions.tahun_cip || [];
+  const wilayahOpts = filterOptions.wilayah || [];
+  const kecFlat = filteredOptions.kecamatanOptions || [];
+  const kelFlat = filteredOptions.kelurahanOptions || [];
+  const rwFlat = filteredOptions.rwOptions || [];
+  const kegOpts = filterOptions.kegiatan || [];
+  const mapping = filterOptions.mapping || {};
+  const allRows = filterOptions.data || []; // fallback
+
+  // ===== Sections: Kecamatan per Wilayah =====
+  const kecSections = useMemo(() => {
+    // pakai mapping jika ada
+    if (mapping.kec_by_wil) {
+      const listWil = selectedWilayah.length ? selectedWilayah : Object.keys(mapping.kec_by_wil || {}).sort();
+      const secs = listWil
+        .map((w) => ({
+          title: w,
+          options: uniqSort((mapping.kec_by_wil[w] || []).filter((k) => kecFlat.includes(k))),
+        }))
+        .filter((s) => s.options.length);
+      return secs.length ? secs : null;
+    }
+    // fallback dari data mentah
+    if (!allRows.length) return null;
+    const listWil = selectedWilayah.length ? selectedWilayah : uniqSort(allRows.map((r) => r.wilayah));
+    const secs = listWil
+      .map((w) => ({
+        title: w,
+        options: uniqSort(allRows.filter((r) => r.wilayah === w).map((r) => r.kecamatan)).filter((k) =>
+          kecFlat.includes(k)
+        ),
+      }))
+      .filter((s) => s.options.length);
+    return secs.length ? secs : null;
+  }, [mapping, allRows, selectedWilayah, kecFlat]);
+
+  // ===== Sections: Kelurahan per Kecamatan =====
+  const kelSections = useMemo(() => {
+    if (mapping.kel_by_kec) {
+      const listKec = selectedKecamatan.length
+        ? selectedKecamatan
+        : Object.keys(mapping.kel_by_kec || {}).sort();
+      const secs = listKec
+        .map((k) => ({
+          title: k,
+          options: uniqSort((mapping.kel_by_kec[k] || []).filter((kel) => kelFlat.includes(kel))),
+        }))
+        .filter((s) => s.options.length);
+      return secs.length ? secs : null;
+    }
+    if (!allRows.length) return null;
+    const listKec = selectedKecamatan.length
+      ? selectedKecamatan
+      : uniqSort(
+          allRows
+            .filter((r) => !selectedWilayah.length || selectedWilayah.includes(r.wilayah))
+            .map((r) => r.kecamatan)
+        );
+    const secs = listKec
+      .map((k) => ({
+        title: k,
+        options: uniqSort(allRows.filter((r) => r.kecamatan === k).map((r) => r.kelurahan)).filter((kel) =>
+          kelFlat.includes(kel)
+        ),
+      }))
+      .filter((s) => s.options.length);
+    return secs.length ? secs : null;
+  }, [mapping, allRows, selectedWilayah, selectedKecamatan, kelFlat]);
+
+  // ===== Sections: RW per Kelurahan =====
+  const rwSections = useMemo(() => {
+    if (mapping.rw_by_kel) {
+      const listKel = selectedKelurahan.length
+        ? selectedKelurahan
+        : Object.keys(mapping.rw_by_kel || {}).sort();
+      const secs = listKel
+        .map((kel) => ({
+          title: kel,
+          options: uniqSort((mapping.rw_by_kel[kel] || []).filter((rv) => rwFlat.includes(rv))),
+        }))
+        .filter((s) => s.options.length);
+      return secs.length ? secs : null;
+    }
+    if (!allRows.length) return null;
+    const listKel = selectedKelurahan.length
+      ? selectedKelurahan
+      : uniqSort(
+          allRows
+            .filter(
+              (r) =>
+                (!selectedWilayah.length || selectedWilayah.includes(r.wilayah)) &&
+                (!selectedKecamatan.length || selectedKecamatan.includes(r.kecamatan))
+            )
+            .map((r) => r.kelurahan)
+        );
+    const secs = listKel
+      .map((kel) => ({
+        title: kel,
+        options: uniqSort(allRows.filter((r) => r.kelurahan === kel).map((r) => r.rw)).filter((rv) =>
+          rwFlat.includes(rv)
+        ),
+      }))
+      .filter((s) => s.options.length);
+    return secs.length ? secs : null;
+  }, [mapping, allRows, selectedWilayah, selectedKecamatan, selectedKelurahan, rwFlat]);
+
   return (
     <div className="row g-2">
+      {/* Tahun CAP */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedTahunCAP} onChange={onChangeTahunCAP}>
-          <option value="">Tahun CAP</option>
-          {filterOptions.tahun_cap?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="Tahun CAP"
+          options={tahunCapOpts}
+          selected={selectedTahunCAP}
+          onChange={call(onChangeTahunCAP)}
+          allowMultiple
+          disabled={!tahunCapOpts.length}
+        />
       </div>
 
+      {/* Tahun CIP */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedTahunCIP} onChange={onChangeTahunCIP}>
-          <option value="">Tahun CIP</option>
-          {filterOptions.tahun_cip?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="Tahun CIP"
+          options={tahunCipOpts}
+          selected={selectedTahunCIP}
+          onChange={call(onChangeTahunCIP)}
+          allowMultiple
+          disabled={!tahunCipOpts.length}
+        />
       </div>
 
+      {/* Wilayah */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedWilayah} onChange={onChangeWilayah}>
-          <option value="">Wilayah</option>
-          {filterOptions.wilayah?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="Wilayah"
+          options={wilayahOpts}
+          selected={selectedWilayah}
+          onChange={(arr) => {
+            call(onChangeWilayah)(arr);
+          }}
+          allowMultiple
+          disabled={!wilayahOpts.length}
+        />
       </div>
 
+      {/* Kecamatan (group per Wilayah) */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedKecamatan} onChange={onChangeKecamatan}>
-          <option value="">Kecamatan</option>
-          {filteredOptions.kecamatanOptions?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="Kecamatan"
+          options={kecFlat}
+          sections={kecSections}
+          selected={selectedKecamatan}
+          onChange={call(onChangeKecamatan)}
+          allowMultiple
+          disabled={!kecFlat.length}
+        />
       </div>
 
+      {/* Kelurahan (group per Kecamatan) */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedKelurahan} onChange={onChangeKelurahan}>
-          <option value="">Kelurahan</option>
-          {filteredOptions.kelurahanOptions?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="Kelurahan"
+          options={kelFlat}
+          sections={kelSections}
+          selected={selectedKelurahan}
+          onChange={call(onChangeKelurahan)}
+          allowMultiple
+          disabled={!kelFlat.length}
+        />
       </div>
 
+      {/* RW (group per Kelurahan) */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedRW} onChange={onChangeRW}>
-          <option value="">RW</option>
-          {filteredOptions.rwOptions?.map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-        </select>
+        <MultiSelectDropdown
+          label="RW"
+          options={rwFlat}
+          sections={rwSections}
+          selected={selectedRW}
+          onChange={call(onChangeRW)}
+          allowMultiple
+          disabled={!rwFlat.length}
+        />
       </div>
 
-      {/* === Dropdown Kegiatan (baru) === */}
+      {/* Kegiatan */}
       <div className="col-12 col-md">
-        <select className="form-select" value={selectedKegiatan} onChange={onChangeKegiatan}>
-          <option value="">Kegiatan</option>
-          {(filterOptions.kegiatan || []).map((val) => (
-            <option key={val} value={val}>{val}</option>
-          ))}
-          {/* Jika nanti ingin dependensi, ganti ke:
-              {(filteredOptions.kegiatanOptions || []).map(...)} */}
-        </select>
+        <MultiSelectDropdown
+          label="Kegiatan"
+          options={kegOpts}
+          selected={selectedKegiatan}
+          onChange={call(onChangeKegiatan)}
+          allowMultiple
+          disabled={!kegOpts.length}
+        />
       </div>
 
       <div className="col-12 col-md-auto d-flex align-items-center justify-content-center">
-        <button className="btn-reset-filter" onClick={onReset}>
+        <button type="button" className="btn-reset-filter" onClick={onReset} title="Reset filter">
           <img src="/portal/img/filter.png" alt="Reset Filter" className="filter-icon" />
         </button>
       </div>

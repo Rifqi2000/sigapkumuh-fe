@@ -32,6 +32,18 @@ const ORDERED_KEGIATAN = [
   'Fasilitas Ekonomi',
 ];
 
+// ==== helpers filter array ====
+const ensureArray = (v) => {
+  if (Array.isArray(v)) return v.filter((x) => x !== undefined && x !== null && x !== '');
+  if (v === undefined || v === null || v === '') return [];
+  return [v];
+};
+const inFilter = (value, filterArr) => {
+  const arr = ensureArray(filterArr).map((x) => String(x));
+  if (arr.length === 0) return true;
+  return arr.includes(String(value ?? ''));
+};
+
 const AllDataTable = ({ data = [], filters = {} }) => {
   const tableRef = useRef(null);
   const tableId = useId();
@@ -56,30 +68,25 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     return m;
   }, []);
 
+  // === FILTER + SORT (array-friendly) ===
   const filteredAndSorted = useMemo(() => {
-    const tahunCIP = String(filters.tahun_cip || '');
-    const wilayah = filters.wilayah || '';
-    const kecamatan = filters.kecamatan || '';
-    const kelurahan = filters.kelurahan || '';
-    const rw = filters.rw || '';
-    const kegiatan = (filters.kegiatan || '').trim();
+    const norm = {
+      tahun_cip: ensureArray(filters?.tahun_cip),
+      wilayah:   ensureArray(filters?.wilayah),
+      kecamatan: ensureArray(filters?.kecamatan),
+      kelurahan: ensureArray(filters?.kelurahan),
+      rw:        ensureArray(filters?.rw),
+      kegiatan:  ensureArray(filters?.kegiatan),
+    };
 
-    const rows = (data || []).filter((row) => {
-      const rowTahun = String(row.tahun || '');
-      const rowWilayah = row.nama_kabkota || '';
-      const rowKecamatan = row.nama_kec || '';
-      const rowKelurahan = row.nama_kel || '';
-      const rowRW = row.nama_rw || '';
-      const rowKegiatan = (row.nama_kegiatan || '').trim();
-
-      return (
-        (filters.tahun_cip === 'Semua' || rowTahun === tahunCIP) &&
-        (wilayah === '' || rowWilayah === wilayah) &&
-        (kecamatan === '' || rowKecamatan === kecamatan) &&
-        (kelurahan === '' || rowKelurahan === kelurahan) &&
-        (rw === '' || rowRW === rw) &&
-        (kegiatan === '' || kegiatan === 'Semua' || rowKegiatan === kegiatan)
-      );
+    const rows = (Array.isArray(data) ? data : []).filter((row) => {
+      const okTahunCIP  = inFilter(row.tahun,          norm.tahun_cip);
+      const okWilayah   = inFilter(row.nama_kabkota,   norm.wilayah);
+      const okKecamatan = inFilter(row.nama_kec,       norm.kecamatan);
+      const okKelurahan = inFilter(row.nama_kel,       norm.kelurahan);
+      const okRW        = inFilter(row.nama_rw,        norm.rw);
+      const okKegiatan  = inFilter(row.nama_kegiatan,  norm.kegiatan);
+      return okTahunCIP && okWilayah && okKecamatan && okKelurahan && okRW && okKegiatan;
     });
 
     const sorted = [...rows].sort((a, b) => {
@@ -98,23 +105,21 @@ const AllDataTable = ({ data = [], filters = {} }) => {
 
   const getSKPD = (wilayah) => (wilayah ? `Sudin ${wilayah}` : '-');
 
-  const columns = useMemo(() => {
-    return [
-      { title: 'TAHUN', data: 'tahun' },
-      { title: 'NAMA KABUPATEN/KOTA', data: 'nama_kabkota' },
-      { title: 'NAMA KECAMATAN', data: 'nama_kec' },
-      { title: 'NAMA KELURAHAN', data: 'nama_kel' },
-      { title: 'NAMA RW', data: 'nama_rw' },
-      { title: 'NAMA KEGIATAN', data: 'nama_kegiatan' },
-      { title: 'JENIS BAHAN', data: 'tipe_bahan' },
-      { title: 'VOLUME', data: 'volume' },
-      { title: 'SATUAN', data: 'satuan' },
-      { title: 'ANGGARAN (Rp)', data: 'anggaran' },
-      { title: 'SKPD', data: null, isSkpd: true }, // kolom terakhir
-    ];
-  }, []);
+  const columns = useMemo(() => ([
+    { title: 'TAHUN', data: 'tahun' },
+    { title: 'NAMA KABUPATEN/KOTA', data: 'nama_kabkota' },
+    { title: 'NAMA KECAMATAN', data: 'nama_kec' },
+    { title: 'NAMA KELURAHAN', data: 'nama_kel' },
+    { title: 'NAMA RW', data: 'nama_rw' },
+    { title: 'NAMA KEGIATAN', data: 'nama_kegiatan' },
+    { title: 'JENIS BAHAN', data: 'tipe_bahan' },
+    { title: 'VOLUME', data: 'volume' },
+    { title: 'SATUAN', data: 'satuan' },
+    { title: 'ANGGARAN (Rp)', data: 'anggaran' },
+    { title: 'SKPD', data: null, isSkpd: true },
+  ]), []);
 
-  // inisialisasi DataTable — hanya untuk admin
+  // init DataTable — hanya admin
   useEffect(() => {
     if (authStatus !== 'admin') return;
 
@@ -123,7 +128,6 @@ const AllDataTable = ({ data = [], filters = {} }) => {
       tableEl.DataTable().destroy();
       tableEl.empty();
     }
-
     $('#customExportButtons').html('');
 
     requestAnimationFrame(() => {
@@ -132,7 +136,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
         pageLength: 10,
         searching: true,
         ordering: true,
-        order: [], // gunakan urutan data hasil sort kustom
+        order: [],
         destroy: true,
         dom: 'Brtip',
         data: filteredAndSorted,
@@ -192,12 +196,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
         language: {
           emptyTable: 'Tidak ada data tersedia.',
           search: 'Cari:',
-          paginate: {
-            first: 'Pertama',
-            last: 'Terakhir',
-            next: '→',
-            previous: '←',
-          },
+          paginate: { first: 'Pertama', last: 'Terakhir', next: '→', previous: '←' },
         },
       });
 
@@ -212,7 +211,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
     };
   }, [filteredAndSorted, columns, authStatus]);
 
-  // ⬇️ Hanya render untuk admin
+  // hanya admin yang melihat
   if (authStatus !== 'admin') return null;
 
   return (
@@ -247,11 +246,7 @@ const AllDataTable = ({ data = [], filters = {} }) => {
 
         {/* Tabel */}
         <div className="table-responsive">
-          <table
-            ref={tableRef}
-            id={tableId}
-            className="table table-hover w-100"
-          />
+          <table ref={tableRef} id={tableId} className="table table-hover w-100" />
         </div>
       </div>
     </div>

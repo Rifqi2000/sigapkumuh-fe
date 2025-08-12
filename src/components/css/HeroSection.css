@@ -28,6 +28,30 @@
   padding-bottom: 0;
 }
 
+/* Tombol login mengambang kanan-atas */
+.btn-login-floating {
+  position: fixed;
+  top: 14px;          /* sesuaikan jarak dari atas */
+  right: 60px;        /* sesuaikan jarak dari kanan */
+  z-index: 1200;      /* di atas konten lain */
+  background: #198754; /* Bootstrap success */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px; /* pill */
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1;
+  box-shadow: 0 4px 14px rgba(25, 135, 84, 0.25);
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.btn-login-floating:hover {
+  background: #157347; /* darker */
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(25, 135, 84, 0.35);
+}
+
 .hero-section {
   background: #f7f7f7;
   border-radius: 20px;
@@ -226,6 +250,13 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  .btn-login-floating {
+    top: 10px;
+    right: 10px;
+    padding: 7px 14px;
+    font-size: 0.95rem;
+  }
+  
   .hero-section {
     padding: 30px 20px;
   }

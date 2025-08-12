@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,6 +24,19 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
     'Fasilitas Ekonomi',
   ];
 
+  // ==== helpers (array-friendly) ====
+  const normalize = (v) => String(v ?? '').trim();
+  const ensureArray = (v) => {
+    if (Array.isArray(v)) return v.filter((x) => x !== undefined && x !== null && x !== '');
+    if (v === undefined || v === null || v === '') return [];
+    return [v];
+  };
+  const inFilter = (value, filterArr) => {
+    const arr = ensureArray(filterArr).map(normalize);
+    if (arr.length === 0) return true;              // kosong = tidak memfilter
+    return arr.includes(normalize(value));
+  };
+
   useEffect(() => {
     const cookies = document.cookie;
     const hasAccessToken = cookies.includes('accessToken');
@@ -46,107 +59,110 @@ const TableDetailCard = ({ title = "Detail CIP", filters, data = [] }) => {
 
   const shouldHideAnggaran = authStatus === 'external' || authStatus === 'public';
 
-  // 1) Filter data (termasuk kegiatan)
-  const filtered = data.filter((item) => {
-    const tahunMatch =
-      filters.tahun_cip === 'Semua' || String(item.tahun) === String(filters.tahun_cip);
+  // Normalisasi filters sekali (memo)
+  const norm = useMemo(() => ({
+    tahun_cip: ensureArray(filters?.tahun_cip),
+    wilayah:   ensureArray(filters?.wilayah),
+    kecamatan: ensureArray(filters?.kecamatan),
+    kelurahan: ensureArray(filters?.kelurahan),
+    rw:        ensureArray(filters?.rw),
+    kegiatan:  ensureArray(filters?.kegiatan),
+  }), [filters]);
 
-    const wilayahMatch =
-      (filters.wilayah || '') === '' || item.nama_kabkota === filters.wilayah;
-
-    const kecamatanMatch =
-      (filters.kecamatan || '') === '' || item.nama_kec === filters.kecamatan;
-
-    const kelurahanMatch =
-      (filters.kelurahan || '') === '' || item.nama_kel === filters.kelurahan;
-
-    const rwMatch =
-      (filters.rw || '') === '' || item.nama_rw === filters.rw;
-
-    const selectedKegiatan = (filters.kegiatan || '').trim();
-    const rowKegiatan = (item.nama_kegiatan || '').trim();
-
-    const kegiatanMatch =
-      selectedKegiatan === '' || selectedKegiatan === 'Semua' || rowKegiatan === selectedKegiatan;
-
-    return tahunMatch && wilayahMatch && kecamatanMatch && kelurahanMatch && rwMatch && kegiatanMatch;
-  });
+  // 1) Filter data (array-friendly)
+  const filtered = useMemo(() => {
+    const rows = Array.isArray(data) ? data : [];
+    return rows.filter((item) => {
+      const tahunMatch     = inFilter(item.tahun,           norm.tahun_cip);
+      const wilayahMatch   = inFilter(item.nama_kabkota,    norm.wilayah);
+      const kecamatanMatch = inFilter(item.nama_kec,        norm.kecamatan);
+      const kelurahanMatch = inFilter(item.nama_kel,        norm.kelurahan);
+      const rwMatch        = inFilter(item.nama_rw,         norm.rw);
+      const kegiatanMatch  = inFilter(item.nama_kegiatan,   norm.kegiatan);
+      return tahunMatch && wilayahMatch && kecamatanMatch && kelurahanMatch && rwMatch && kegiatanMatch;
+    });
+  }, [data, norm]);
 
   // 2) Grouping per (kegiatan, tipe_bahan, wilayah)
-  const groupedMap = new Map();
-  filtered.forEach((item) => {
-    const wilayah = item.nama_kabkota || '-';
-    const key = `${item.nama_kegiatan}||${item.tipe_bahan}||${wilayah}`;
-    if (!groupedMap.has(key)) {
-      groupedMap.set(key, {
-        nama_kegiatan: item.nama_kegiatan,
-        tipe_bahan: item.tipe_bahan,
-        wilayah,
-        volume: Number(item.volume) || 0,
-        satuan: item.satuan || '-',
-        anggaran: Number(item.anggaran) || 0,
-      });
-    } else {
-      const g = groupedMap.get(key);
-      g.volume += Number(item.volume) || 0;
-      g.anggaran += Number(item.anggaran) || 0;
-      groupedMap.set(key, g);
-    }
-  });
-
-  // Array grouped (tanpa placeholder), untuk hitung total anggaran
-  const grouped = Array.from(groupedMap.values());
+  const grouped = useMemo(() => {
+    const groupedMap = new Map();
+    filtered.forEach((item) => {
+      const wilayah = item.nama_kabkota || '-';
+      const key = `${normalize(item.nama_kegiatan)}||${normalize(item.tipe_bahan)}||${wilayah}`;
+      if (!groupedMap.has(key)) {
+        groupedMap.set(key, {
+          nama_kegiatan: item.nama_kegiatan,
+          tipe_bahan: item.tipe_bahan,
+          wilayah,
+          volume: Number(item.volume) || 0,
+          satuan: item.satuan || '-',
+          anggaran: Number(item.anggaran) || 0,
+        });
+      } else {
+        const g = groupedMap.get(key);
+        g.volume += Number(item.volume) || 0;
+        g.anggaran += Number(item.anggaran) || 0;
+        groupedMap.set(key, g);
+      }
+    });
+    return Array.from(groupedMap.values());
+  }, [filtered]);
 
   // 2b) Susun menurut ORDERED_KEGIATAN + placeholder jika kosong
-  // buat index: kegiatan -> array item
-  const byKegiatan = grouped.reduce((acc, it) => {
-    const k = it.nama_kegiatan || '-';
-    if (!acc[k]) acc[k] = [];
-    acc[k].push(it);
-    return acc;
-  }, {});
+  const orderedRows = useMemo(() => {
+    // buat index: kegiatan -> array item
+    const byKegiatan = grouped.reduce((acc, it) => {
+      const k = it.nama_kegiatan || '-';
+      if (!acc[k]) acc[k] = [];
+      acc[k].push(it);
+      return acc;
+    }, {});
 
-  // sort helper di dalam satu kegiatan
-  const sortInside = (arr) =>
-    arr.sort((a, b) => {
-      const t = (a.tipe_bahan || '').localeCompare(b.tipe_bahan || '', 'id');
-      if (t !== 0) return t;
-      return (a.wilayah || '').localeCompare(b.wilayah || '', 'id');
+    // sort helper di dalam satu kegiatan
+    const sortInside = (arr) =>
+      arr.sort((a, b) => {
+        const t = (a.tipe_bahan || '').localeCompare(b.tipe_bahan || '', 'id');
+        if (t !== 0) return t;
+        return (a.wilayah || '').localeCompare(b.wilayah || '', 'id');
+      });
+
+    const out = [];
+
+    // Tambahkan sesuai urutan prioritas (pakai placeholder bila kosong)
+    ORDERED_KEGIATAN.forEach((nama) => {
+      const items = byKegiatan[nama];
+      if (items && items.length) {
+        out.push(...sortInside(items));
+      } else {
+        out.push({
+          nama_kegiatan: nama,
+          tipe_bahan: '-',
+          wilayah: '-',
+          volume: 0,
+          satuan: '-',
+          anggaran: 0,
+          __placeholder: true,
+        });
+      }
     });
 
-  const orderedRows = [];
+    // Tambahkan sisa kegiatan yang tidak ada di daftar (urut alfabetis)
+    const remainingNames = Object.keys(byKegiatan)
+      .filter((k) => !ORDERED_KEGIATAN.includes(k))
+      .sort((a, b) => a.localeCompare(b, 'id'));
 
-  // Tambahkan sesuai urutan prioritas (pakai placeholder bila kosong)
-  ORDERED_KEGIATAN.forEach((nama) => {
-    const items = byKegiatan[nama];
-    if (items && items.length) {
-      orderedRows.push(...sortInside(items));
-    } else {
-      orderedRows.push({
-        nama_kegiatan: nama,
-        tipe_bahan: '-',
-        wilayah: '-',
-        volume: 0,
-        satuan: '-',
-        anggaran: 0,
-        __placeholder: true, // flag internal (tidak dipakai di UI)
-      });
-    }
-  });
+    remainingNames.forEach((nama) => {
+      out.push(...sortInside(byKegiatan[nama]));
+    });
 
-  // Tambahkan sisa kegiatan yang tidak ada di daftar (urut alfabetis)
-  const remainingNames = Object.keys(byKegiatan)
-    .filter((k) => !ORDERED_KEGIATAN.includes(k))
-    .sort((a, b) => a.localeCompare(b, 'id'));
-
-  remainingNames.forEach((nama) => {
-    orderedRows.push(...sortInside(byKegiatan[nama]));
-  });
+    return out;
+  }, [grouped]);
 
   // 3) Total anggaran (hanya admin) – dari data nyata saja
-  const totalAnggaran = shouldHideAnggaran
-    ? null
-    : grouped.reduce((sum, item) => sum + (Number(item.anggaran) || 0), 0);
+  const totalAnggaran = useMemo(() => {
+    if (shouldHideAnggaran) return null;
+    return grouped.reduce((sum, item) => sum + (Number(item.anggaran) || 0), 0);
+  }, [grouped, shouldHideAnggaran]);
 
   // 4) Pagination (berdasarkan orderedRows yang sudah ada placeholder)
   const totalPages = Math.ceil(orderedRows.length / itemsPerPage) || 1;

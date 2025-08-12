@@ -81,6 +81,15 @@ const HeroSection = ({ onScrollClick }) => {
 
   return (
     <div className="hero-wrapper">
+      {/* === Floating Login Button === */}
+      <a
+        href="https://10.15.38.162:9200/login"
+        className="btn-login-floating"
+        // kalau mau di tab baru, buka komentar baris di bawah:
+        // target="_blank" rel="noopener noreferrer"
+      >
+        Login
+      </a>
       <div className="hero-section">
         <div className="hero-content">
           {/* === KIRI === */}
